@@ -174,31 +174,29 @@ export default function AddPromptForm({ onAdd, onCancel }: AddPromptFormProps) {
               <button
                 type="button"
                 onClick={onCancel}
-                className="btn btn-outline"
+                className="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-full hover:bg-gray-50 transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="btn btn-primary"
+                className="px-4 py-2 bg-gradient-to-r from-rose-400 to-amber-400 text-white rounded-full hover:from-rose-500 hover:to-amber-500 transition-colors flex items-center gap-1.5"
                 disabled={!title || !promptText}
               >
-                <span className="flex items-center gap-1.5">
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={1.5}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                    <polyline points="7 3 7 8 15 8"></polyline>
-                  </svg>
-                  Save Prompt
-                </span>
+                <svg
+                  viewBox="0 0 24 24"
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                  <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                  <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
+                Save Prompt
               </button>
             </div>
           </form>

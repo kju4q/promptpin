@@ -38,9 +38,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} min-h-screen bg-neutral-50`}>
-        <div className="animate-fadeIn">
-          {children}
+      <body
+        className={`${inter.className} h-screen flex flex-col bg-neutral-50`}
+        suppressHydrationWarning={true}
+      >
+        <div className="animate-fadeIn flex-grow flex flex-col">
+          <div className="flex-grow">{children}</div>
           <Footer />
         </div>
       </body>

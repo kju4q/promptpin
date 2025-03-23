@@ -3,7 +3,7 @@ import { Prompt } from "../data/prompts";
 
 interface PromptGridProps {
   prompts: Prompt[];
-  onSave: (id: string, saved: boolean) => void;
+  onSave: (id: string) => void;
 }
 
 export default function PromptGrid({ prompts, onSave }: PromptGridProps) {
@@ -38,17 +38,9 @@ export default function PromptGrid({ prompts, onSave }: PromptGridProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 auto-rows-auto">
-      {prompts.map((prompt, index) => (
-        <div
-          key={prompt.id}
-          className="animate-fadeIn"
-          style={{
-            animationDelay: `${index * 0.05}s`,
-            opacity: 0,
-            animation: `fadeIn 0.5s ease-out ${index * 0.05}s forwards`,
-          }}
-        >
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-5 auto-rows-fr">
+      {prompts.map((prompt) => (
+        <div key={prompt.id} className="h-full">
           <PromptCard prompt={prompt} onSave={onSave} />
         </div>
       ))}

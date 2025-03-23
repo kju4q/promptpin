@@ -7,7 +7,7 @@ type HeaderProps = {
 
 export default function Header({ onAddClick }: HeaderProps) {
   return (
-    <header className="sticky top-0 z-10 bg-white shadow-sm">
+    <header className="sticky top-0 z-10 bg-white">
       <div className="flex items-center justify-between px-4 py-2">
         {/* Custom Logo */}
         <Link href="/" className="flex-shrink-0">
