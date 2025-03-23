@@ -1,11 +1,18 @@
 import React from "react";
 import Link from "next/link";
+import SocialLinks from "./SocialLinks";
 
 export default function Footer() {
   return (
     <footer className="mt-auto">
       <div className="bg-gradient-to-r from-rose-400 to-amber-400 h-1"></div>
+
+      {/* Social Links */}
       <div className="container mx-auto px-4 py-3">
+        <SocialLinks />
+      </div>
+
+      <div className="container mx-auto px-4 py-3 border-t border-gray-100">
         <div className="flex flex-row justify-between items-center">
           <div className="flex items-center">
             <svg
