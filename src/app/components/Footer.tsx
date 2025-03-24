@@ -1,5 +1,4 @@
 import React from "react";
-import Link from "next/link";
 import SocialLinks from "./SocialLinks";
 
 export default function Footer() {
