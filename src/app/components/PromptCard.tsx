@@ -1,130 +1,184 @@
-import { useState } from "react";
+"use client";
+
+import React, { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Prompt } from "../data/prompts";
+import { Prompt } from "@/app/types/prompt";
+import { useToast } from "@/app/components/ui/use-toast";
+import { usePromptStatsStore } from "@/app/store/promptStatsStore";
 
 interface PromptCardProps {
   prompt: Prompt;
-  onSave: (id: string) => void;
+  onSave?: (prompt: Prompt) => void;
+  onUnsave?: (prompt: Prompt) => void;
+  isSaved?: boolean;
+  showSaveButton?: boolean;
 }
 
-export default function PromptCard({ prompt, onSave }: PromptCardProps) {
+const heightClasses = ["min-h-[180px]", "min-h-[220px]", "min-h-[260px]"];
+
+export default function PromptCard({
+  prompt,
+  onSave,
+  onUnsave,
+  isSaved = false,
+  showSaveButton = true,
+}: PromptCardProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const [isHovered, setIsHovered] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { incrementViews, incrementUses } = usePromptStatsStore();
 
-  // Get emoji for the category
-  const categoryEmojis: Record<string, string> = {
-    General: "✨",
-    Business: "💼",
-    Development: "💻",
-    Marketing: "📢",
-    Design: "🎨",
-    "Content Creation": "✏️",
-    Data: "📊",
-    Education: "📚",
-    Entertainment: "🎭",
-    Lifestyle: "🌿",
-    Professional: "👔",
-    Content: "✏️",
+  // Use a stable height based on prompt ID
+  const heightIndex =
+    prompt.id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) %
+    heightClasses.length;
+  const cardHeight = heightClasses[heightIndex];
+
+  const handleSave = async () => {
+    setIsLoading(true);
+    try {
+      if (isSaved && onUnsave) {
+        await onUnsave(prompt);
+        toast({
+          title: "Prompt unsaved",
+          description: "The prompt has been removed from your saved prompts",
+        });
+      } else if (onSave) {
+        await onSave(prompt);
+        toast({
+          title: "Prompt saved",
+          description: "The prompt has been added to your saved prompts",
+        });
+      }
+    } catch (error) {
+      console.error("Error saving prompt:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save the prompt. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const emoji = categoryEmojis[prompt.category] || "✨";
+  const handleTryWithAI = (model: "gpt" | "claude") => {
+    incrementUses(prompt.id);
+    // Encode the prompt text for URL safety
+    const encodedPrompt = encodeURIComponent(prompt.promptText);
 
-  const handleSave = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Don't navigate
-    setIsAnimating(true);
-    onSave(prompt.id);
-    setTimeout(() => setIsAnimating(false), 300);
-  };
-
-  const handleCardClick = () => {
-    router.push(`/prompt/${prompt.id}`);
+    // Open AI service in new tab with the prompt
+    if (model === "gpt") {
+      window
+        .open(
+          `https://chat.openai.com/?model=gpt-4&prompt=${encodedPrompt}`,
+          "_blank"
+        )
+        ?.focus();
+    } else if (model === "claude") {
+      window
+        .open(`https://claude.ai/chat?prompt=${encodedPrompt}`, "_blank")
+        ?.focus();
+    }
   };
 
   return (
     <div
-      className="animate-fadeIn h-full"
-      onMouseEnter={() => setIsHovered(true)}
+      className={`group relative bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden break-inside-avoid mb-2`}
+      onMouseEnter={() => {
+        setIsHovered(true);
+        incrementViews(prompt.id);
+      }}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div
-        className="border border-zinc-200 rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer h-full flex flex-col min-h-[250px]"
-        onClick={handleCardClick}
-      >
-        <div className="p-5 flex flex-col h-full">
-          <div className="flex justify-between items-start mb-3">
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-neutral-50 text-gray-700 border border-zinc-200">
-              {emoji} {prompt.category}
-            </span>
-
-            <button
-              onClick={handleSave}
-              className="text-sky-400 hover:text-sky-500 focus:outline-none"
+      {showSaveButton && (
+        <button
+          onClick={handleSave}
+          disabled={isLoading}
+          className={`absolute top-2 right-2 z-10 p-2 rounded-full bg-white/90 shadow-sm invisible group-hover:visible transition-colors duration-200 ${
+            isSaved ? "text-red-500" : "text-gray-700 hover:text-red-500"
+          }`}
+        >
+          {isLoading ? (
+            <svg
+              className="w-6 h-6 animate-spin"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
             >
-              <span className={isAnimating ? "favorite-animation block" : ""}>
-                {prompt.isSaved ? (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                ) : (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={1.5}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                    />
-                  </svg>
-                )}
-              </span>
-            </button>
-          </div>
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              />
+            </svg>
+          ) : isSaved ? (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+                clipRule="evenodd"
+              />
+            </svg>
+          ) : (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+              />
+            </svg>
+          )}
+        </button>
+      )}
 
-          <h3 className="text-base font-semibold mb-3 text-gray-800 line-clamp-2">
+      <div className="p-3">
+        <Link href={`/prompt/${prompt.id}`} className="block">
+          <h3 className="text-lg font-semibold text-gray-900 line-clamp-2 mb-2">
             {prompt.title}
           </h3>
+          {prompt.description && (
+            <p className="text-sm text-gray-600 line-clamp-3 mb-3">
+              {prompt.description}
+            </p>
+          )}
+        </Link>
 
-          <p className="text-gray-600 text-sm line-clamp-3 mb-4 flex-grow">
-            {prompt.promptText}
-          </p>
-
-          <div className="flex justify-start mt-auto">
-            <button
-              onClick={handleCardClick}
-              className="text-xs text-gray-500 flex items-center hover:text-sky-500 transition-colors"
-            >
-              <span>View prompt</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-3 w-3 ml-1"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </button>
-          </div>
+        <div className="flex gap-1.5 justify-end">
+          <button
+            onClick={() => handleTryWithAI("gpt")}
+            className="px-2.5 py-1 bg-green-50 text-green-600 rounded-full text-xs font-medium hover:bg-green-100 transition-colors duration-200"
+          >
+            Try with GPT
+          </button>
+          <button
+            onClick={() => handleTryWithAI("claude")}
+            className="px-2.5 py-1 bg-purple-50 text-purple-600 rounded-full text-xs font-medium hover:bg-purple-100 transition-colors duration-200"
+          >
+            Try with Claude
+          </button>
         </div>
       </div>
     </div>
