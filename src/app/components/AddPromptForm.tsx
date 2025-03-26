@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Prompt } from "../data/prompts";
+import { Prompt } from "../types/prompt";
 
 interface AddPromptFormProps {
   onAdd: (prompt: Omit<Prompt, "id">) => void;
@@ -9,8 +9,8 @@ interface AddPromptFormProps {
 export default function AddPromptForm({ onAdd, onCancel }: AddPromptFormProps) {
   const [title, setTitle] = useState("");
   const [promptText, setPromptText] = useState("");
-  const [exampleOutput, setExampleOutput] = useState("");
   const [category, setCategory] = useState("General");
+  const [description, setDescription] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,18 +19,22 @@ export default function AddPromptForm({ onAdd, onCancel }: AddPromptFormProps) {
       return;
     }
 
+    const now = new Date().toISOString();
     onAdd({
       title,
       promptText,
-      exampleOutput,
       category,
-      isSaved: false,
+      description,
+      tags: [],
+      createdAt: now,
+      updatedAt: now,
+      severity: "low",
     });
 
     setTitle("");
     setPromptText("");
-    setExampleOutput("");
     setCategory("General");
+    setDescription("");
   };
 
   const categories = [
@@ -156,17 +160,17 @@ export default function AddPromptForm({ onAdd, onCancel }: AddPromptFormProps) {
 
             <div>
               <label
-                htmlFor="exampleOutput"
+                htmlFor="description"
                 className="block text-sm font-medium text-gray-700 mb-1.5"
               >
-                Example Output (optional)
+                Description (optional)
               </label>
               <textarea
-                id="exampleOutput"
-                value={exampleOutput}
-                onChange={(e) => setExampleOutput(e.target.value)}
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
                 className="w-full px-4 py-2.5 border border-zinc-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-500 bg-white min-h-[120px] transition-all"
-                placeholder="Add an example of what this prompt might generate..."
+                placeholder="Add a description of what this prompt is about..."
               />
             </div>
 

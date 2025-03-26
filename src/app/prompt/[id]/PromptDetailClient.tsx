@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Prompt, examplePrompts } from "../../data/prompts";
+import { Prompt } from "../../types/prompt";
+import { examplePrompts } from "../../data/example-prompts";
 import {
   getUserPrompts,
   isPromptSaved,
@@ -14,6 +15,17 @@ import {
 import Header from "../../components/Header";
 import Link from "next/link";
 import { generatePrompt } from "../../utils/openai";
+
+// Helper function to ensure prompt has all required fields
+const ensurePromptFields = (prompt: Partial<Prompt>): Prompt => {
+  const now = new Date().toISOString();
+  return {
+    ...prompt,
+    createdAt: prompt.createdAt || now,
+    updatedAt: prompt.updatedAt || now,
+    severity: prompt.severity || "low",
+  } as Prompt;
+};
 
 // Client Component that handles the prompt fetching and display
 export default function PromptDetailClient({ promptId }: { promptId: string }) {
@@ -60,6 +72,7 @@ export default function PromptDetailClient({ promptId }: { promptId: string }) {
         let foundPrompt = userPrompts.find((p) => p.id === promptId);
         if (foundPrompt) {
           console.log("Found prompt in user prompts:", foundPrompt.title);
+          foundPrompt = ensurePromptFields(foundPrompt);
         } else {
           console.log("Prompt not found in user prompts");
         }
@@ -76,6 +89,7 @@ export default function PromptDetailClient({ promptId }: { promptId: string }) {
           foundPrompt = allPrompts.find((p) => p.id === promptId);
           if (foundPrompt) {
             console.log("Found prompt in all prompts:", foundPrompt.title);
+            foundPrompt = ensurePromptFields(foundPrompt);
           } else {
             console.log("Prompt not found in all prompts");
           }
@@ -91,9 +105,13 @@ export default function PromptDetailClient({ promptId }: { promptId: string }) {
             "Example prompt IDs:",
             examplePrompts.map((p) => p.id)
           );
-          foundPrompt = examplePrompts.find((p) => p.id === promptId);
-          if (foundPrompt) {
-            console.log("Found prompt in example prompts:", foundPrompt.title);
+          const examplePrompt = examplePrompts.find((p) => p.id === promptId);
+          if (examplePrompt) {
+            console.log(
+              "Found prompt in example prompts:",
+              examplePrompt.title
+            );
+            foundPrompt = ensurePromptFields(examplePrompt);
           } else {
             console.log("Prompt not found in example prompts");
           }
@@ -117,16 +135,19 @@ export default function PromptDetailClient({ promptId }: { promptId: string }) {
             const topic = "general";
 
             // Generate a new prompt
-            const newPrompt = await generatePrompt(topic);
+            const openAIPrompt = await generatePrompt(topic);
 
-            // Assign the ID from URL to maintain consistency
-            newPrompt.id = promptId;
+            // Assign the ID from URL to maintain consistency and add required fields
+            const now = new Date().toISOString();
+            foundPrompt = ensurePromptFields({
+              ...openAIPrompt,
+              id: promptId,
+            });
 
             console.log(
               "Successfully generated new prompt from API:",
-              newPrompt.title
+              foundPrompt.title
             );
-            foundPrompt = newPrompt;
           } catch (apiError) {
             console.error("Failed to fetch from OpenAI API:", apiError);
             // Continue with the normal flow, will show error message
@@ -142,33 +163,6 @@ export default function PromptDetailClient({ promptId }: { promptId: string }) {
           console.log("Is prompt saved:", isPromptSaved(promptId));
         } else {
           console.error(`Prompt with ID ${promptId} not found`);
-          console.log(
-            "User prompts IDs:",
-            userPrompts.map((p) => p.id)
-          );
-          console.log(
-            "All prompts IDs:",
-            getAllPrompts().map((p) => p.id)
-          );
-          console.log(
-            "Example prompts IDs:",
-            examplePrompts.map((p) => p.id)
-          );
-
-          // The specific ID may be invalid or corrupted
-          // It might be using a non-standard format, so let's try to find any close matches
-          const allPossiblePrompts = [
-            ...userPrompts,
-            ...getAllPrompts(),
-            ...examplePrompts,
-          ];
-
-          // Log all available IDs for debugging
-          console.log(
-            "All possible IDs:",
-            allPossiblePrompts.map((p) => p.id)
-          );
-
           setError(
             `We couldn't find the prompt you're looking for (ID: ${promptId}). It may have been deleted or it doesn't exist.`
           );
@@ -181,19 +175,11 @@ export default function PromptDetailClient({ promptId }: { promptId: string }) {
       } finally {
         // Ensure we show loading for at least 2 seconds
         const elapsedTime = Date.now() - startTime;
-        console.log("Time elapsed:", elapsedTime, "ms");
         if (elapsedTime < 2000) {
-          console.log(
-            "Setting timeout to finish loading in",
-            2000 - elapsedTime,
-            "ms"
-          );
           setTimeout(() => {
-            console.log("Setting isLoading to false from timeout");
             setIsLoading(false);
           }, 2000 - elapsedTime);
         } else {
-          console.log("Setting isLoading to false immediately");
           setIsLoading(false);
         }
       }
@@ -390,38 +376,37 @@ export default function PromptDetailClient({ promptId }: { promptId: string }) {
             </h1>
 
             {/* Tags */}
-            {prompt.keywords && prompt.keywords.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mb-6">
-                {prompt.keywords.map((tag, index) => (
+            {prompt.tags && prompt.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-6">
+                {prompt.tags.map((tag, index) => (
                   <span
                     key={index}
-                    className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full"
+                    className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
                   >
-                    #{tag.toLowerCase().replace(/\s+/g, "")}
+                    {tag}
                   </span>
                 ))}
               </div>
             )}
 
-            <div className="mb-8">
-              <h2 className="text-lg font-semibold mb-3 text-gray-700">
-                Prompt
-              </h2>
-              <div className="bg-neutral-50 p-4 md:p-6 rounded-xl border border-zinc-200 font-mono text-gray-700 whitespace-pre-wrap">
-                {prompt.promptText}
-              </div>
-            </div>
-
-            {prompt.exampleOutput && (
-              <div className="mb-8">
-                <h2 className="text-lg font-semibold mb-3 text-gray-700">
-                  Example Output
-                </h2>
-                <div className="bg-neutral-50 p-4 md:p-6 rounded-xl border border-zinc-200 whitespace-pre-wrap text-gray-700">
-                  {prompt.exampleOutput}
-                </div>
+            {/* Description */}
+            {prompt.description && (
+              <div className="mt-6 bg-gray-50 rounded-xl p-6">
+                <h3 className="text-lg font-semibold mb-2">Description</h3>
+                <p className="text-gray-600 whitespace-pre-wrap">
+                  {prompt.description}
+                </p>
               </div>
             )}
+
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold mb-2">Prompt Text</h3>
+              <div className="bg-gray-50 rounded-xl p-6">
+                <p className="text-gray-600 whitespace-pre-wrap">
+                  {prompt.promptText}
+                </p>
+              </div>
+            </div>
 
             <div className="flex flex-col sm:flex-row gap-3 mt-8">
               <a

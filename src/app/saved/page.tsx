@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Header from "../components/Header";
 import PromptGrid from "../components/PromptGrid";
 import AddPromptForm from "../components/AddPromptForm";
-import { Prompt } from "../data/prompts";
+import { Prompt } from "../types/prompt";
 import {
   getSavedPromptsData,
   savePrompt,
@@ -22,22 +22,15 @@ export default function SavedPage() {
     // Get saved prompts from localStorage using our utility function
     const fetchSavedPrompts = () => {
       const savedPromptsData = getSavedPromptsData();
-
-      // Mark all prompts as saved
-      const markedPrompts = savedPromptsData.map((prompt) => ({
-        ...prompt,
-        isSaved: true,
-      }));
-
-      setSavedPrompts(markedPrompts);
+      setSavedPrompts(savedPromptsData);
     };
 
     fetchSavedPrompts();
   }, []);
 
-  const handleSavePrompt = (id: string) => {
+  const handleSavePrompt = (prompt: Prompt) => {
     // Since we're on the saved page, this will always be an unsave action
-    unsavePrompt(id);
+    unsavePrompt(prompt.id);
 
     // Show toast notification
     setToastMessage("Prompt removed from your collection");
@@ -45,7 +38,7 @@ export default function SavedPage() {
     setTimeout(() => setShowToast(false), 3000);
 
     // Update state by removing the unsaved prompt
-    setSavedPrompts((prev) => prev.filter((p) => p.id !== id));
+    setSavedPrompts((prev) => prev.filter((p) => p.id !== prompt.id));
   };
 
   const handleAddPrompt = (promptData: Omit<Prompt, "id">) => {
@@ -55,8 +48,8 @@ export default function SavedPage() {
     // Also save it
     savePrompt(newPrompt.id);
 
-    // Add to saved prompts state with isSaved flag
-    setSavedPrompts((prev) => [...prev, { ...newPrompt, isSaved: true }]);
+    // Add to saved prompts state
+    setSavedPrompts((prev) => [...prev, newPrompt]);
 
     // Close the form
     setIsAddingPrompt(false);

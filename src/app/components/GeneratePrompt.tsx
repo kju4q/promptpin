@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { generatePrompt, generatePromptsForCategory } from "../utils/openai";
-import { Prompt } from "../data/prompts";
+import { Prompt } from "../types/prompt";
 import { storeAllPrompts } from "../utils/promptStorage";
 
 interface GeneratePromptProps {
@@ -43,7 +43,16 @@ export default function GeneratePrompt({
     try {
       if (topic) {
         // Generate a single prompt based on topic
-        const generatedPrompt = await generatePrompt(topic);
+        const openAIPrompt = await generatePrompt(topic);
+
+        // Add required fields
+        const now = new Date().toISOString();
+        const generatedPrompt: Prompt = {
+          ...openAIPrompt,
+          createdAt: now,
+          updatedAt: now,
+          severity: "low",
+        };
 
         // Store prompt in localStorage for future retrieval
         storeAllPrompts([generatedPrompt]);
@@ -51,10 +60,16 @@ export default function GeneratePrompt({
         onAddPrompt(generatedPrompt);
       } else if (category) {
         // Generate multiple prompts for a category
-        const generatedPrompts = await generatePromptsForCategory(
-          category,
-          count
-        );
+        const openAIPrompts = await generatePromptsForCategory(category, count);
+
+        // Add required fields to all prompts
+        const now = new Date().toISOString();
+        const generatedPrompts: Prompt[] = openAIPrompts.map((prompt) => ({
+          ...prompt,
+          createdAt: now,
+          updatedAt: now,
+          severity: "low",
+        }));
 
         // Store all generated prompts in localStorage
         storeAllPrompts(generatedPrompts);

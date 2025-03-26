@@ -1,8 +1,19 @@
-import { Prompt } from "../data/prompts";
+import { Prompt } from "../types/prompt";
 
 const SAVED_PROMPTS_KEY = "promptpin-saved-prompts";
 const USER_PROMPTS_KEY = "promptpin-user-prompts";
 const ALL_PROMPTS_KEY = "promptpin-all-prompts";
+
+// Helper function to ensure prompt has all required fields
+const ensurePromptFields = (prompt: Partial<Prompt>): Prompt => {
+  const now = new Date().toISOString();
+  return {
+    ...prompt,
+    createdAt: prompt.createdAt || now,
+    updatedAt: prompt.updatedAt || now,
+    severity: prompt.severity || "low",
+  } as Prompt;
+};
 
 // Save prompt IDs to localStorage
 export const savePrompt = (promptId: string): void => {
@@ -40,13 +51,14 @@ export const isPromptSaved = (promptId: string): boolean => {
 
 // Add a user-created prompt to localStorage
 export const addUserPrompt = (prompt: Omit<Prompt, "id">): Prompt => {
-  if (typeof window === "undefined") return { id: "", ...prompt };
+  if (typeof window === "undefined")
+    return ensurePromptFields({ id: "", ...prompt });
 
   const userPrompts = getUserPrompts();
-  const newPrompt: Prompt = {
+  const newPrompt = ensurePromptFields({
     ...prompt,
     id: `user-${Date.now()}`,
-  };
+  });
 
   userPrompts.push(newPrompt);
   localStorage.setItem(USER_PROMPTS_KEY, JSON.stringify(userPrompts));
