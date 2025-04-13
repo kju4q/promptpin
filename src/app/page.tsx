@@ -9,14 +9,18 @@ import {
   getSavedPrompts,
   savePrompt,
   unsavePrompt,
+  storeAllPrompts,
 } from "./utils/promptStorage";
-import { useToast } from "./components/ui/use-toast";
+import { useToast } from "./components/ui/toast-provider";
 
 export default function Home() {
   const { toast } = useToast();
   const [savedPromptIds, setSavedPromptIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
+    // Store example prompts in localStorage
+    storeAllPrompts(examplePrompts);
+
     // Load saved prompts on component mount
     const savedPrompts = getSavedPrompts();
     setSavedPromptIds(new Set(savedPrompts));

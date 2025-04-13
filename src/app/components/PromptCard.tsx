@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Prompt } from "@/app/types/prompt";
-import { useToast } from "@/app/components/ui/use-toast";
 import { usePromptStatsStore } from "@/app/store/promptStatsStore";
 
 interface PromptCardProps {
@@ -25,7 +24,6 @@ export default function PromptCard({
   showSaveButton = true,
 }: PromptCardProps) {
   const router = useRouter();
-  const { toast } = useToast();
   const [isHovered, setIsHovered] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { incrementViews, incrementUses } = usePromptStatsStore();
@@ -41,24 +39,11 @@ export default function PromptCard({
     try {
       if (isSaved && onUnsave) {
         await onUnsave(prompt);
-        toast({
-          title: "Prompt unsaved",
-          description: "The prompt has been removed from your saved prompts",
-        });
       } else if (onSave) {
         await onSave(prompt);
-        toast({
-          title: "Prompt saved",
-          description: "The prompt has been added to your saved prompts",
-        });
       }
     } catch (error) {
       console.error("Error saving prompt:", error);
-      toast({
-        title: "Error",
-        description: "Failed to save the prompt. Please try again.",
-        variant: "destructive",
-      });
     } finally {
       setIsLoading(false);
     }

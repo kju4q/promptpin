@@ -15,6 +15,7 @@ import {
 import Header from "../../components/Header";
 import Link from "next/link";
 import { generatePrompt } from "../../utils/openai";
+import { useToast } from "@/app/components/ui/toast-provider";
 
 // Helper function to ensure prompt has all required fields
 const ensurePromptFields = (prompt: Partial<Prompt>): Prompt => {
@@ -30,6 +31,7 @@ const ensurePromptFields = (prompt: Partial<Prompt>): Prompt => {
 // Client Component that handles the prompt fetching and display
 export default function PromptDetailClient({ promptId }: { promptId: string }) {
   const router = useRouter();
+  const { toast } = useToast();
   const [prompt, setPrompt] = useState<Prompt | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaved, setIsSaved] = useState(false);
@@ -198,6 +200,10 @@ export default function PromptDetailClient({ promptId }: { promptId: string }) {
       setSaveToastMessage("Prompt unpinned");
       setShowSaveToast(true);
       setTimeout(() => setShowSaveToast(false), 3000);
+      toast({
+        title: "Prompt unpinned",
+        description: "The prompt has been removed from your collection",
+      });
     } else {
       // Add to saved
       savePrompt(prompt.id);
@@ -207,7 +213,19 @@ export default function PromptDetailClient({ promptId }: { promptId: string }) {
       setSaveToastMessage("Prompt pinned to your collection! 📌");
       setShowSaveToast(true);
       setTimeout(() => setShowSaveToast(false), 3000);
+      toast({
+        title: "Prompt pinned",
+        description: "The prompt has been added to your collection! 📌",
+      });
     }
+  };
+
+  const handleCopyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "Copied to clipboard",
+      description: "The prompt has been copied to your clipboard",
+    });
   };
 
   if (isLoading) {
@@ -430,12 +448,7 @@ export default function PromptDetailClient({ promptId }: { promptId: string }) {
                 href="#"
                 onClick={(e) => {
                   e.preventDefault();
-                  // Copy to clipboard first
-                  navigator.clipboard.writeText(prompt.promptText);
-                  // Display toast message
-                  setShowClaudeCopyToast(true);
-                  setTimeout(() => setShowClaudeCopyToast(false), 3000);
-                  // Then open Claude
+                  handleCopyToClipboard(prompt.promptText);
                   window.open("https://claude.ai/chats", "_blank");
                 }}
                 className="px-4 py-2 bg-gradient-to-r from-sky-400 to-blue-500 text-white rounded-full hover:from-sky-500 hover:to-blue-600 transition-colors flex-1 flex justify-center items-center text-sm"
@@ -455,7 +468,7 @@ export default function PromptDetailClient({ promptId }: { promptId: string }) {
                 Try with Claude
               </a>
               <button
-                onClick={() => navigator.clipboard.writeText(prompt.promptText)}
+                onClick={() => handleCopyToClipboard(prompt.promptText)}
                 className="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-full hover:bg-gray-50 transition-colors flex justify-center items-center text-sm"
               >
                 <svg
