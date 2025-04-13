@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Footer from "./components/Footer";
+import { Toaster } from "./components/ui/toaster";
+import { ToastProvider } from "./components/ui/toast-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -42,10 +44,13 @@ export default function RootLayout({
         className={`${inter.className} h-screen flex flex-col bg-neutral-50`}
         suppressHydrationWarning={true}
       >
-        <div className="animate-fadeIn flex-grow flex flex-col">
-          <div className="flex-grow">{children}</div>
-          <Footer />
-        </div>
+        <ToastProvider>
+          <div className="animate-fadeIn flex-grow flex flex-col">
+            <div className="flex-grow">{children}</div>
+            <Footer />
+          </div>
+          <Toaster />
+        </ToastProvider>
       </body>
     </html>
   );
