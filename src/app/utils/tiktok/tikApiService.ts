@@ -2,7 +2,7 @@ import axios from "axios";
 
 // TikAPI configuration
 const TIKAPI_BASE_URL = "https://api.tikapi.io/public";
-const TIKAPI_KEY = process.env.NEXT_PUBLIC_TIKAPI_KEY || "";
+const TIKAPI_KEY = process.env.NEXT_PUBLIC_TIKAPI_KEY;
 
 // Interface for TikTok video data
 export interface TikTokVideo {
@@ -70,68 +70,43 @@ interface TikApiResponse<T> {
  */
 export const fetchVideosByHashtag = async (
   hashtag: string,
-  count: number = 30
-): Promise<TikTokVideo[]> => {
-  try {
-    if (!TIKAPI_KEY) {
-      console.error("TikAPI key is not set");
-      return [];
-    }
-
-    const response = await axios.get<TikApiResponse<{ videos: TikTokVideo[] }>>(
-      `${TIKAPI_BASE_URL}/hashtag/${hashtag}/feed`,
-      {
-        params: {
-          count,
-        },
-        headers: {
-          Accept: "application/json",
-          "X-TikAPI-Key": TIKAPI_KEY,
-        },
-      }
-    );
-
-    if (response.data.status === "success") {
-      return response.data.data.videos;
-    } else {
-      console.error("TikAPI error:", response.data.message);
-      return [];
-    }
-  } catch (error) {
-    console.error("Error fetching TikTok videos:", error);
-    return [];
+  count: number = 5
+) => {
+  const response = await fetch(
+    `/api/tiktok?hashtag=${encodeURIComponent(hashtag)}&count=${count}`
+  );
+  if (!response.ok) {
+    throw new Error("Failed to fetch videos");
   }
+  const data = await response.json();
+  // The TikAPI response structure: { status, data: { videos: [...] }, ... }
+  return data.data?.videos || [];
 };
 
 /**
  * Fetch multiple TikTok videos by multiple hashtags
  * @param hashtags Array of hashtags to search for (without the # symbol)
- * @param countPerHashtag Number of videos to fetch per hashtag (default: 10)
+ * @param countPerHashtag Number of videos to fetch per hashtag (default: 5)
  * @returns Array of TikTok videos
  */
 export const fetchVideosByMultipleHashtags = async (
   hashtags: string[],
-  countPerHashtag: number = 10
+  countPerHashtag: number = 5
 ): Promise<TikTokVideo[]> => {
-  try {
-    const allVideos: TikTokVideo[] = [];
-
-    for (const hashtag of hashtags) {
+  const allVideos: TikTokVideo[] = [];
+  for (const hashtag of hashtags) {
+    try {
       const videos = await fetchVideosByHashtag(hashtag, countPerHashtag);
       allVideos.push(...videos);
+    } catch (error) {
+      // handle error or continue
     }
-
-    // Remove duplicates based on video_id
-    const uniqueVideos = allVideos.filter(
-      (video, index, self) =>
-        index === self.findIndex((v) => v.video_id === video.video_id)
-    );
-
-    return uniqueVideos;
-  } catch (error) {
-    console.error("Error fetching videos by multiple hashtags:", error);
-    return [];
   }
+  // Remove duplicates by video_id
+  return allVideos.filter(
+    (video, index, self) =>
+      index === self.findIndex((v) => v.video_id === video.video_id)
+  );
 };
 
 /**
