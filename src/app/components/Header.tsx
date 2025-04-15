@@ -45,9 +45,25 @@ export default function Header({ onAddClick }: HeaderProps) {
           </div>
         </Link>
 
+        {/* Navigation Links */}
+        <div className="hidden md:flex items-center space-x-6">
+          <Link href="/" className="text-gray-600 hover:text-rose-500">
+            Home
+          </Link>
+          <Link href="/saved" className="text-gray-600 hover:text-rose-500">
+            Saved
+          </Link>
+          <Link href="/tiktok" className="text-gray-600 hover:text-rose-500">
+            TikTok
+          </Link>
+        </div>
+
         {/* Icons - Only Heart and User Avatar */}
         <div className="flex items-center gap-3">
-          <Link href="/saved" className="p-2 rounded-full hover:bg-gray-100">
+          <Link
+            href="/saved"
+            className="p-2 rounded-full hover:bg-gray-100 md:hidden"
+          >
             <svg
               className="w-6 h-6 text-gray-600"
               fill="none"
@@ -59,6 +75,25 @@ export default function Header({ onAddClick }: HeaderProps) {
                 strokeLinejoin="round"
                 strokeWidth={2}
                 d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+              />
+            </svg>
+          </Link>
+
+          <Link
+            href="/tiktok"
+            className="p-2 rounded-full hover:bg-gray-100 md:hidden"
+          >
+            <svg
+              className="w-6 h-6 text-gray-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
               />
             </svg>
           </Link>
