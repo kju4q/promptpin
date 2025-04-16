@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // TikAPI configuration
-const TIKAPI_BASE_URL = "https://api.tikapi.io/public";
+const TIKAPI_BASE_URL = "https://api.tikapi.io/api";
 const TIKAPI_KEY = process.env.NEXT_PUBLIC_TIKAPI_KEY;
 
 // Interface for TikTok video data
