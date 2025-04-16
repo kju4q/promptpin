@@ -136,3 +136,96 @@ export const extractPromptsFromVideo = (video: TikTokVideo): string[] => {
 
   return prompts;
 };
+
+/**
+ * Interface for extracted prompt from TikTok video
+ */
+export interface ExtractedPrompt {
+  prompt: string; // extracted from caption
+  author: string; // TikTok username
+  videoUrl: string;
+  thumbnailUrl: string;
+}
+
+/**
+ * Fetch trending TikTok posts and extract prompt-like text
+ * @returns Array of extracted prompts
+ */
+export const fetchTrendingPrompts = async (): Promise<ExtractedPrompt[]> => {
+  const API_KEY = process.env.NEXT_PUBLIC_TIKAPI_KEY;
+  const ACCOUNT_KEY = process.env.NEXT_PUBLIC_TIKAPI_ACCOUNT_KEY;
+
+  if (!API_KEY || !ACCOUNT_KEY) {
+    throw new Error("TikAPI keys not configured");
+  }
+
+  try {
+    // Fetch trending posts from TikTok
+    const response = await axios.get(`${TIKAPI_BASE_URL}/post/trending`, {
+      params: { count: 30 }, // Max items per request: 30
+      headers: {
+        "X-API-KEY": API_KEY,
+        "X-ACCOUNT-KEY": ACCOUNT_KEY,
+        Accept: "application/json",
+      },
+      timeout: 10000,
+    });
+
+    const videos = response.data.data?.videos || [];
+    const extractedPrompts: ExtractedPrompt[] = [];
+
+    // Keywords to look for in captions
+    const promptKeywords = [
+      "prompt:",
+      "chatgpt:",
+      "ai prompt",
+      "try this prompt",
+      "prompt engineering",
+      "gpt prompt",
+      "ai prompt:",
+      "prompt for",
+      "prompt to",
+    ];
+
+    // Process each video
+    for (const video of videos) {
+      if (!video.text) continue;
+
+      // Check if caption contains any of the prompt keywords
+      const captionLower = video.text.toLowerCase();
+      const hasPromptKeyword = promptKeywords.some((keyword) =>
+        captionLower.includes(keyword.toLowerCase())
+      );
+
+      if (hasPromptKeyword) {
+        // Extract the prompt text - this is a simple implementation
+        // In a real implementation, you might want to use more sophisticated parsing
+        let promptText = video.text;
+
+        // Try to extract just the prompt part if possible
+        for (const keyword of promptKeywords) {
+          const keywordIndex = captionLower.indexOf(keyword.toLowerCase());
+          if (keywordIndex !== -1) {
+            // Extract text after the keyword
+            promptText = video.text
+              .substring(keywordIndex + keyword.length)
+              .trim();
+            break;
+          }
+        }
+
+        extractedPrompts.push({
+          prompt: promptText,
+          author: video.author.nickname || video.author.unique_id,
+          videoUrl: video.share_url,
+          thumbnailUrl: video.cover,
+        });
+      }
+    }
+
+    return extractedPrompts;
+  } catch (error: any) {
+    console.error("Error fetching trending prompts:", error);
+    throw new Error(`Failed to fetch trending prompts: ${error.message}`);
+  }
+};
