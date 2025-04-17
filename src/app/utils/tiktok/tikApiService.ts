@@ -1,11 +1,16 @@
-import axios from "axios";
+const axios = require("axios");
+const TikAPI = require("tikapi");
 
 // TikAPI configuration
-const TIKAPI_BASE_URL = "https://api.tikapi.io/api";
-// const TIKAPI_KEY = process.env.NEXT_PUBLIC_TIKAPI_KEY;
+const TIKAPI_BASE_URL = "https://api.tikapi.io";
+const TIKAPI_KEY = process.env.TIKAPI_KEY;
+const TIKAPI_ACCOUNT_KEY = process.env.TIKAPI_ACCOUNT_KEY;
+
+// Initialize TikAPI SDK
+const tikApi = TikAPI(TIKAPI_KEY || "");
 
 // Interface for TikTok video data
-export interface TikTokVideo {
+interface TikTokVideo {
   id: string;
   video_id: string;
   region: string;
@@ -68,10 +73,7 @@ interface TikApiResponse<T> {
  * @param count Number of videos to fetch (default: 30)
  * @returns Array of TikTok videos
  */
-export const fetchVideosByHashtag = async (
-  hashtag: string,
-  count: number = 5
-) => {
+const fetchVideosByHashtag = async (hashtag: string, count: number = 5) => {
   const response = await fetch(
     `/api/tiktok?hashtag=${encodeURIComponent(hashtag)}&count=${count}`
   );
@@ -89,7 +91,7 @@ export const fetchVideosByHashtag = async (
  * @param countPerHashtag Number of videos to fetch per hashtag (default: 5)
  * @returns Array of TikTok videos
  */
-export const fetchVideosByMultipleHashtags = async (
+const fetchVideosByMultipleHashtags = async (
   hashtags: string[],
   countPerHashtag: number = 5
 ): Promise<TikTokVideo[]> => {
@@ -114,7 +116,7 @@ export const fetchVideosByMultipleHashtags = async (
  * @param video TikTok video object
  * @returns Array of potential prompts
  */
-export const extractPromptsFromVideo = (video: TikTokVideo): string[] => {
+const extractPromptsFromVideo = (video: TikTokVideo): string[] => {
   const prompts: string[] = [];
 
   // Extract from caption
@@ -140,7 +142,7 @@ export const extractPromptsFromVideo = (video: TikTokVideo): string[] => {
 /**
  * Interface for extracted prompt from TikTok video
  */
-export interface ExtractedPrompt {
+interface ExtractedPrompt {
   prompt: string; // extracted from caption
   author: string; // TikTok username
   videoUrl: string;
@@ -151,27 +153,28 @@ export interface ExtractedPrompt {
  * Fetch trending TikTok posts and extract prompt-like text
  * @returns Array of extracted prompts
  */
-export const fetchTrendingPrompts = async (): Promise<ExtractedPrompt[]> => {
-  const API_KEY = process.env.NEXT_PUBLIC_TIKAPI_KEY;
-  const ACCOUNT_KEY = process.env.NEXT_PUBLIC_TIKAPI_ACCOUNT_KEY;
-
-  if (!API_KEY || !ACCOUNT_KEY) {
+const fetchTrendingPrompts = async (): Promise<ExtractedPrompt[]> => {
+  if (!TIKAPI_KEY || !TIKAPI_ACCOUNT_KEY) {
     throw new Error("TikAPI keys not configured");
   }
 
   try {
-    // Fetch trending posts from TikTok
-    const response = await axios.get(`${TIKAPI_BASE_URL}/post/trending`, {
-      params: { count: 30 }, // Max items per request: 30
+    // Use the correct endpoint as per documentation
+    const response = await axios.get(`${TIKAPI_BASE_URL}/user/explore`, {
+      params: { count: 10 }, // Limit to 10 results to stay within usage limits
       headers: {
-        "X-API-KEY": API_KEY,
-        "X-ACCOUNT-KEY": ACCOUNT_KEY,
+        "X-API-KEY": TIKAPI_KEY,
+        "X-ACCOUNT-KEY": TIKAPI_ACCOUNT_KEY,
         Accept: "application/json",
       },
       timeout: 10000,
     });
 
-    const videos = response.data.data?.videos || [];
+    if (!response?.data?.data?.videos) {
+      throw new Error("No videos found in response");
+    }
+
+    const videos = response.data.data.videos;
     const extractedPrompts: ExtractedPrompt[] = [];
 
     // Keywords to look for in captions
@@ -228,4 +231,11 @@ export const fetchTrendingPrompts = async (): Promise<ExtractedPrompt[]> => {
     console.error("Error fetching trending prompts:", error);
     throw new Error(`Failed to fetch trending prompts: ${error.message}`);
   }
+};
+
+module.exports = {
+  fetchTrendingPrompts,
+  fetchVideosByHashtag,
+  fetchVideosByMultipleHashtags,
+  extractPromptsFromVideo,
 };
