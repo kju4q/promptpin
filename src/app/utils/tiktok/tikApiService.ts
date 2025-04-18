@@ -1,7 +1,4 @@
 // Remove all Node.js-specific imports
-// TikAPI configuration - these are only used for reference now
-const TIKAPI_BASE_URL = "https://api.tikapi.io";
-
 // Interface for TikTok video data
 interface TikTokVideo {
   id: string;
