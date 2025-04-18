@@ -15,11 +15,6 @@ interface TextExtra {
   hashtagName?: string;
 }
 
-interface Comment {
-  text: string;
-  createTime: number;
-}
-
 interface ExtractedPrompt {
   prompt: string;
   creativeTitle: string;
