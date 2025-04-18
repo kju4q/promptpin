@@ -114,43 +114,6 @@ function cleanWebVTTContent(content: string): string {
 }
 
 /**
- * Check if text contains emotional or motivational content
- */
-function hasEmotionalContent(text: string): boolean {
-  const emotionalIndicators = [
-    "amazing",
-    "incredible",
-    "awesome",
-    "best",
-    "love",
-    "perfect",
-    "must try",
-    "game changer",
-    "revolutionary",
-    "breakthrough",
-    "life changing",
-    "transform",
-    "inspire",
-    "motivate",
-    "empower",
-    "unlock",
-    "discover",
-    "reveal",
-    "secret",
-    "hack",
-    "trick",
-    "pro tip",
-    "expert",
-    "professional",
-    "master",
-    "genius",
-  ];
-
-  const textLower = text.toLowerCase();
-  return emotionalIndicators.some((indicator) => textLower.includes(indicator));
-}
-
-/**
  * Check if text is a clean, short prompt
  */
 function isCleanPrompt(text: string): boolean {
