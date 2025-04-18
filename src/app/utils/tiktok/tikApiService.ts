@@ -1,13 +1,6 @@
-const axios = require("axios");
-const TikAPI = require("tikapi");
-
-// TikAPI configuration
+// Remove all Node.js-specific imports
+// TikAPI configuration - these are only used for reference now
 const TIKAPI_BASE_URL = "https://api.tikapi.io";
-const TIKAPI_KEY = process.env.TIKAPI_KEY;
-const TIKAPI_ACCOUNT_KEY = process.env.TIKAPI_ACCOUNT_KEY;
-
-// Initialize TikAPI SDK
-const tikApi = TikAPI(TIKAPI_KEY || "");
 
 // Interface for TikTok video data
 interface TikTokVideo {
@@ -68,174 +61,50 @@ interface TikApiResponse<T> {
 }
 
 /**
- * Fetch TikTok videos by hashtag
- * @param hashtag The hashtag to search for (without the # symbol)
- * @param count Number of videos to fetch (default: 30)
- * @returns Array of TikTok videos
- */
-const fetchVideosByHashtag = async (hashtag: string, count: number = 5) => {
-  const response = await fetch(
-    `/api/tiktok?hashtag=${encodeURIComponent(hashtag)}&count=${count}`
-  );
-  if (!response.ok) {
-    throw new Error("Failed to fetch videos");
-  }
-  const data = await response.json();
-  // The TikAPI response structure: { status, data: { videos: [...] }, ... }
-  return data.data?.videos || [];
-};
-
-/**
- * Fetch multiple TikTok videos by multiple hashtags
- * @param hashtags Array of hashtags to search for (without the # symbol)
- * @param countPerHashtag Number of videos to fetch per hashtag (default: 5)
- * @returns Array of TikTok videos
- */
-const fetchVideosByMultipleHashtags = async (
-  hashtags: string[],
-  countPerHashtag: number = 5
-): Promise<TikTokVideo[]> => {
-  const allVideos: TikTokVideo[] = [];
-  for (const hashtag of hashtags) {
-    try {
-      const videos = await fetchVideosByHashtag(hashtag, countPerHashtag);
-      allVideos.push(...videos);
-    } catch (error) {
-      // handle error or continue
-    }
-  }
-  // Remove duplicates by video_id
-  return allVideos.filter(
-    (video, index, self) =>
-      index === self.findIndex((v) => v.video_id === video.video_id)
-  );
-};
-
-/**
- * Extract potential prompts from video captions and comments
- * @param video TikTok video object
- * @returns Array of potential prompts
- */
-const extractPromptsFromVideo = (video: TikTokVideo): string[] => {
-  const prompts: string[] = [];
-
-  // Extract from caption
-  if (video.text) {
-    // Look for patterns that might indicate a prompt
-    // This is a simple implementation and can be enhanced
-    const captionLines = video.text.split("\n");
-    for (const line of captionLines) {
-      if (
-        line.toLowerCase().includes("prompt:") ||
-        line.toLowerCase().includes("chatgpt:") ||
-        line.toLowerCase().includes("ai prompt:") ||
-        line.toLowerCase().includes("prompt engineering:")
-      ) {
-        prompts.push(line.trim());
-      }
-    }
-  }
-
-  return prompts;
-};
-
-/**
  * Interface for extracted prompt from TikTok video
  */
-interface ExtractedPrompt {
-  prompt: string; // extracted from caption
-  author: string; // TikTok username
+export interface ExtractedPrompt {
+  prompt: string;
+  creativeTitle: string;
+  author: string;
   videoUrl: string;
   thumbnailUrl: string;
 }
 
 /**
- * Fetch trending TikTok posts and extract prompt-like text
+ * Check if the API is working
+ * @returns Boolean indicating if the API is working
+ */
+const checkApiKeyStatus = async (): Promise<boolean> => {
+  try {
+    const response = await fetch("/api/tiktok?type=trending");
+    return response.ok;
+  } catch (error) {
+    console.error("Error checking API status:", error);
+    return false;
+  }
+};
+
+/**
+ * Fetch trending TikTok videos and extract prompts
  * @returns Array of extracted prompts
  */
 const fetchTrendingPrompts = async (): Promise<ExtractedPrompt[]> => {
-  if (!TIKAPI_KEY || !TIKAPI_ACCOUNT_KEY) {
-    throw new Error("TikAPI keys not configured");
-  }
-
   try {
-    // Use the correct endpoint as per documentation
-    const response = await axios.get(`${TIKAPI_BASE_URL}/user/explore`, {
-      params: { count: 10 }, // Limit to 10 results to stay within usage limits
-      headers: {
-        "X-API-KEY": TIKAPI_KEY,
-        "X-ACCOUNT-KEY": TIKAPI_ACCOUNT_KEY,
-        Accept: "application/json",
-      },
-      timeout: 10000,
-    });
+    const response = await fetch("/api/tiktok?type=trending");
 
-    if (!response?.data?.data?.videos) {
-      throw new Error("No videos found in response");
-    }
-
-    const videos = response.data.data.videos;
-    const extractedPrompts: ExtractedPrompt[] = [];
-
-    // Keywords to look for in captions
-    const promptKeywords = [
-      "prompt:",
-      "chatgpt:",
-      "ai prompt",
-      "try this prompt",
-      "prompt engineering",
-      "gpt prompt",
-      "ai prompt:",
-      "prompt for",
-      "prompt to",
-    ];
-
-    // Process each video
-    for (const video of videos) {
-      if (!video.text) continue;
-
-      // Check if caption contains any of the prompt keywords
-      const captionLower = video.text.toLowerCase();
-      const hasPromptKeyword = promptKeywords.some((keyword) =>
-        captionLower.includes(keyword.toLowerCase())
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch trending prompts: ${response.statusText}`
       );
-
-      if (hasPromptKeyword) {
-        // Extract the prompt text - this is a simple implementation
-        // In a real implementation, you might want to use more sophisticated parsing
-        let promptText = video.text;
-
-        // Try to extract just the prompt part if possible
-        for (const keyword of promptKeywords) {
-          const keywordIndex = captionLower.indexOf(keyword.toLowerCase());
-          if (keywordIndex !== -1) {
-            // Extract text after the keyword
-            promptText = video.text
-              .substring(keywordIndex + keyword.length)
-              .trim();
-            break;
-          }
-        }
-
-        extractedPrompts.push({
-          prompt: promptText,
-          author: video.author.nickname || video.author.unique_id,
-          videoUrl: video.share_url,
-          thumbnailUrl: video.cover,
-        });
-      }
     }
 
-    return extractedPrompts;
-  } catch (error: any) {
+    const data = await response.json();
+    return data.prompts || [];
+  } catch (error) {
     console.error("Error fetching trending prompts:", error);
-    throw new Error(`Failed to fetch trending prompts: ${error.message}`);
+    return [];
   }
 };
 
-module.exports = {
-  fetchTrendingPrompts,
-  fetchVideosByHashtag,
-  fetchVideosByMultipleHashtags,
-  extractPromptsFromVideo,
-};
+export { checkApiKeyStatus, fetchTrendingPrompts, type TikTokVideo };
