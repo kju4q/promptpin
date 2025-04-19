@@ -289,30 +289,6 @@ function extractCleanPrompt(text: string): string {
 }
 
 /**
- * Check if two prompts are similar enough to be considered duplicates
- */
-function arePromptsSimilar(prompt1: string, prompt2: string): boolean {
-  // Convert to lowercase and remove extra spaces for comparison
-  const clean1 = prompt1.toLowerCase().trim().replace(/\s+/g, " ");
-  const clean2 = prompt2.toLowerCase().trim().replace(/\s+/g, " ");
-
-  // If one is a substring of the other, they're similar
-  if (clean1.includes(clean2) || clean2.includes(clean1)) {
-    return true;
-  }
-
-  // Calculate similarity ratio (simple implementation)
-  const words1 = new Set(clean1.split(" "));
-  const words2 = new Set(clean2.split(" "));
-
-  const intersection = new Set([...words1].filter((x) => words2.has(x)));
-  const union = new Set([...words1, ...words2]);
-
-  const similarity = intersection.size / union.size;
-  return similarity > 0.7; // 70% similarity threshold
-}
-
-/**
  * Process a single comment to extract a prompt
  */
 function processComment(comment: string): string | null {
