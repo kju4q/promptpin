@@ -316,11 +316,8 @@ function arePromptsSimilar(prompt1: string, prompt2: string): boolean {
  * Process a single comment to extract a prompt
  */
 function processComment(comment: string): string | null {
-  const cleanPrompt = extractCleanPrompt(comment);
-  if (cleanPrompt.length > 10) {
-    return cleanPrompt;
-  }
-  return null;
+  const clean = extractCleanPrompt(comment);
+  return isAIPromptRelated(clean) && isCleanPrompt(clean) ? clean : null;
 }
 
 /**
@@ -334,7 +331,7 @@ async function fetchVideoComments(videoId: string): Promise<TikTokComment[]> {
       params: {
         media_id: videoId,
         count: 20,
-        cursor: 0, // optional for now
+        cursor: 0,
       },
       headers: {
         "X-API-KEY": TIKAPI_KEY,
@@ -349,17 +346,37 @@ async function fetchVideoComments(videoId: string): Promise<TikTokComment[]> {
       return [];
     }
 
-    return comments.map((comment: any) => ({
-      text: comment.text || "",
-      digg_count: comment.digg_count || 0,
-      user: {
-        nickname: comment.user?.nickname || "",
-        unique_id: comment.user?.unique_id || "",
-      },
-      comment_language: comment.comment_language || "unknown",
-    }));
-  } catch (error) {
-    console.error("Failed to fetch comments:", error);
+    // isAIPromptRelated(text) && -- remove temporarily
+    // Filter and map comments to our structured format
+    return comments
+      .filter((comment: any) => {
+        try {
+          const text = comment.text || "";
+          // Only include comments that are AI-related and clean prompts
+          return isCleanPrompt(text);
+        } catch (error) {
+          console.error("Error processing comment:", error);
+          return false;
+        }
+      })
+      .map((comment: any) => ({
+        text: comment.text || "",
+        digg_count: comment.digg_count || 0,
+        user: {
+          nickname: comment.user?.nickname || "",
+          unique_id: comment.user?.unique_id || "",
+        },
+        comment_language: comment.comment_language || "unknown",
+      }));
+  } catch (error: any) {
+    // Check if it's a 403 error
+    if (error?.response?.status === 403) {
+      console.log("Comments access forbidden (403) for video:", videoId);
+      return [];
+    }
+
+    // For other errors, log and return empty array
+    console.error("Failed to fetch comments:", error?.message || error);
     return [];
   }
 }
@@ -370,91 +387,118 @@ async function fetchVideoComments(videoId: string): Promise<TikTokComment[]> {
 async function extractPromptFromVideo(
   video: any
 ): Promise<ExtractedPrompt | null> {
-  let promptText = "";
-  let source = "";
+  try {
+    let promptText = "";
+    let source = "";
 
-  // 1. Try captions first
-  if (video.video?.subtitleInfos?.length > 0) {
-    const englishCaptions = video.video.subtitleInfos.find(
-      (subtitle: SubtitleInfo) => subtitle.LanguageCodeName === "eng-US"
-    );
-
-    if (englishCaptions?.Url) {
+    // 1. Try captions first
+    if (video?.video?.subtitleInfos?.length > 0) {
       try {
-        const captionsResponse = await axios.get(englishCaptions.Url);
-        const captionText = cleanWebVTTContent(captionsResponse.data);
-        const extractedPrompt = extractCleanPrompt(captionText);
-        if (extractedPrompt) {
-          promptText = extractedPrompt;
-          source = "captions";
+        const englishCaptions = video.video.subtitleInfos.find(
+          (subtitle: SubtitleInfo) => subtitle.LanguageCodeName === "eng-US"
+        );
+
+        if (englishCaptions?.Url) {
+          const captionsResponse = await axios.get(englishCaptions.Url);
+          const captionText = cleanWebVTTContent(captionsResponse.data);
+          const extractedPrompt = extractCleanPrompt(captionText);
+          if (extractedPrompt) {
+            promptText = extractedPrompt;
+            source = "captions";
+          }
         }
       } catch (error) {
-        console.log("Failed to fetch captions:", error);
+        console.error("Error processing captions:", error);
       }
     }
-  }
 
-  // 2. If no prompt in captions, try description and hashtags
-  if (!promptText) {
-    const descriptionText = video.desc || video.text || "";
-    const hashtags =
-      video.textExtra
-        ?.filter((item: TextExtra) => item.type === 1)
-        .map((item: TextExtra) => item.hashtagName)
-        .join(" ") || "";
+    // 2. If no prompt in captions, try description and hashtags
+    if (!promptText) {
+      try {
+        const descriptionText = video?.desc || video?.text || "";
+        const hashtags =
+          video?.textExtra
+            ?.filter((item: TextExtra) => item?.type === 1)
+            .map((item: TextExtra) => item?.hashtagName)
+            .filter(Boolean)
+            .join(" ") || "";
 
-    const combinedText = `${descriptionText} ${hashtags}`;
-    const extractedPrompt = extractCleanPrompt(combinedText);
-    if (extractedPrompt) {
-      promptText = extractedPrompt;
-      source = "description_and_hashtags";
-    }
-  }
-
-  // 3. If still no prompt, try comments
-  if (!promptText) {
-    // Use the video's aweme_id for fetching comments
-    const awemeId = video.id || video.item_id;
-    if (awemeId) {
-      const comments = await fetchVideoComments(awemeId);
-      // For now, just use the first comment's text
-      if (comments.length > 0) {
-        promptText = comments[0].text;
-        source = "comments";
+        const combinedText = `${descriptionText} ${hashtags}`;
+        const extractedPrompt = extractCleanPrompt(combinedText);
+        if (extractedPrompt) {
+          promptText = extractedPrompt;
+          source = "description_and_hashtags";
+        }
+      } catch (error) {
+        console.error("Error processing description and hashtags:", error);
       }
     }
-  }
 
-  if (!promptText) {
+    // 3. If still no prompt, try comments
+    if (!promptText) {
+      try {
+        const videoId = video?.id || video?.item_id;
+        if (videoId) {
+          const comments = await fetchVideoComments(videoId);
+          // Sort comments by digg_count to prioritize popular comments
+          const sortedComments = comments.sort(
+            (a, b) => b.digg_count - a.digg_count
+          );
+
+          // Find the first comment that looks like a valid prompt
+          for (const comment of sortedComments) {
+            try {
+              const extractedPrompt = extractCleanPrompt(comment.text);
+              if (extractedPrompt) {
+                promptText = extractedPrompt;
+                source = "comments";
+                break;
+              }
+            } catch (error) {
+              console.error("Error processing comment:", error);
+              continue;
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error processing comments:", error);
+      }
+    }
+
+    if (!promptText) {
+      return null;
+    }
+
+    console.log(`Found prompt from ${source}:`, promptText);
+
+    // Extract author information with fallbacks
+    const authorInfo =
+      video?.author?.nickname ||
+      video?.author?.uniqueId ||
+      video?.author?.id ||
+      "Unknown";
+
+    // Extract video URL and thumbnail with fallbacks
+    const videoInfo = {
+      url:
+        video?.video?.playAddr ||
+        video?.video?.downloadAddr ||
+        video?.video?.play ||
+        "",
+      thumbnail: video?.video?.cover || video?.video?.originCover || "",
+    };
+
+    return {
+      prompt: promptText,
+      creativeTitle: promptText,
+      author: authorInfo,
+      videoUrl: videoInfo.url,
+      thumbnailUrl: videoInfo.thumbnail,
+    };
+  } catch (error) {
+    console.error("Error in extractPromptFromVideo:", error);
     return null;
   }
-
-  console.log(`Found prompt from ${source}:`, promptText);
-
-  // Extract author information
-  const authorInfo =
-    video.author?.nickname ||
-    video.author?.uniqueId ||
-    video.author?.id ||
-    "Unknown";
-
-  // Extract video URL and thumbnail
-  const videoInfo = {
-    url:
-      video.video?.playAddr ||
-      video.video?.downloadAddr ||
-      video.video?.play ||
-      "",
-    thumbnail: video.video?.cover || video.video?.originCover || "",
-  };
-
-  return {
-    prompt: promptText,
-    creativeTitle: promptText,
-    author: authorInfo,
-    videoUrl: videoInfo.url,
-    thumbnailUrl: videoInfo.thumbnail,
-  };
 }
 
 /**
@@ -534,6 +578,7 @@ export async function GET(req: NextRequest) {
   try {
     // For now, we're only handling trending prompts
     const prompts = await fetchTrendingPrompts();
+    console.log("Fetched prompts:", prompts);
     return NextResponse.json({ prompts });
   } catch (error: any) {
     console.error("API error:", error);
