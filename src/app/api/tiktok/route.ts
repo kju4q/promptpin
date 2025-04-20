@@ -44,11 +44,11 @@ function cleanWebVTTContent(content: string): string {
 
   // Remove WEBVTT header and metadata
   let cleaned = content
-    .replace(/^WEBVTT.*$/m, "") // Remove WEBVTT header
-    .replace(/^\d{2}:\d{2}:\d{2}\.\d{3}.*$/gm, "") // Remove timestamp lines
-    .replace(/^NOTE.*$/gm, "") // Remove NOTE lines
-    .replace(/^-->.*$/gm, "") // Remove arrow lines
-    .replace(/^\d+$/gm, "") // Remove standalone numbers
+    .replace(/^WEBVTT.*$/m, "")
+    .replace(/^\d{2}:\d{2}:\d{2}\.\d{3}.*$/gm, "")
+    .replace(/^NOTE.*$/gm, "")
+    .replace(/^-->.*$/gm, "")
+    .replace(/^\d+$/gm, "")
     .replace(/\n{3,}/g, "\n\n") // Replace multiple newlines with double newline
     .trim();
 
