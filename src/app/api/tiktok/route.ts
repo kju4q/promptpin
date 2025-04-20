@@ -134,6 +134,31 @@ function isCleanPrompt(text: string): boolean {
 }
 
 /**
+ * Check if hashtags contain AI-related terms
+ */
+function hasAIPromptsInHashtags(textExtra: TextExtra[]): boolean {
+  const aiHashtags = [
+    "chatgpt",
+    "chatgptprompts",
+    "ai",
+    "aiprompts",
+    "gpt",
+    "gptprompts",
+    "promptengineering",
+    "prompt",
+    "prompts",
+  ];
+
+  return textExtra.some((item) => {
+    if (item.type === 1 && item.hashtagName) {
+      const hashtag = item.hashtagName.toLowerCase().replace("#", "");
+      return aiHashtags.some((aiTag) => hashtag.includes(aiTag));
+    }
+    return false;
+  });
+}
+
+/**
  * Check if text is related to AI, ChatGPT, or prompts
  */
 function isAIPromptRelated(text: string): boolean {
@@ -155,6 +180,15 @@ function isAIPromptRelated(text: string): boolean {
     "prompt tip",
     "prompt trick",
     "prompt engineering",
+    "#chatgpt",
+    "#chatgptprompts",
+    "#ai",
+    "#aiprompts",
+    "#gpt",
+    "#gptprompts",
+    "#promptengineering",
+    "#prompt",
+    "#prompts",
   ];
 
   const textLower = text.toLowerCase();
@@ -367,6 +401,12 @@ async function extractPromptFromVideo(
     let promptText = "";
     let source = "";
 
+    // Check if video has AI-related hashtags
+    const hasAIPrompts = video?.textExtra
+      ? hasAIPromptsInHashtags(video.textExtra)
+      : false;
+    console.log("Has AI-related hashtags:", hasAIPrompts);
+
     // 1. Try captions first
     if (video?.video?.subtitleInfos?.length > 0) {
       try {
@@ -388,8 +428,8 @@ async function extractPromptFromVideo(
       }
     }
 
-    // 2. If no prompt in captions, try description and hashtags
-    if (!promptText) {
+    // 2. If no prompt in captions or if video has AI hashtags, try description and hashtags
+    if (!promptText || hasAIPrompts) {
       try {
         const descriptionText = video?.desc || video?.text || "";
         const hashtags =
@@ -410,29 +450,31 @@ async function extractPromptFromVideo(
       }
     }
 
-    // 3. If still no prompt, try comments
-    if (!promptText) {
+    // 3. If still no prompt or if video has AI hashtags, try comments
+    if (!promptText || hasAIPrompts) {
       try {
         const videoId = video?.id || video?.item_id;
         if (videoId) {
           const comments = await fetchVideoComments(videoId);
-          // Sort comments by digg_count to prioritize popular comments
-          const sortedComments = comments.sort(
-            (a, b) => b.digg_count - a.digg_count
-          );
+          console.log(`\n=== Processing Comments for Video ${videoId} ===`);
+          console.log(`Found ${comments.length} comments`);
 
-          // Find the first comment that looks like a valid prompt
-          for (const comment of sortedComments) {
-            try {
-              const extractedPrompt = extractCleanPrompt(comment.text);
-              if (extractedPrompt) {
-                promptText = extractedPrompt;
-                source = "comments";
-                break;
-              }
-            } catch (error) {
-              console.error("Error processing comment:", error);
-              continue;
+          // Process comments
+          for (const comment of comments) {
+            console.log("\n=== Processing Comment ===");
+            console.log("Raw comment text:", comment.text);
+            console.log("Comment author:", comment.user?.nickname);
+
+            const extractedPrompt = extractCleanPrompt(comment.text);
+            console.log("Extracted prompt:", extractedPrompt);
+
+            if (extractedPrompt) {
+              console.log("✅ Valid prompt found in comment");
+              promptText = extractedPrompt;
+              source = "comments";
+              break;
+            } else {
+              console.log("❌ No valid prompt found in comment");
             }
           }
         }
