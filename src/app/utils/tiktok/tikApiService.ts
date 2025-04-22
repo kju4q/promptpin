@@ -1,4 +1,6 @@
 // Remove all Node.js-specific imports
+import { fetchTrendingPrompts as fetchTrendingPromptsFromMain } from "../tiktok";
+
 // Interface for TikTok video data
 interface TikTokVideo {
   id: string;
@@ -62,10 +64,11 @@ interface TikApiResponse<T> {
  */
 export interface ExtractedPrompt {
   prompt: string;
-  creativeTitle: string;
+  creativeTitle?: string;
   author: string;
   videoUrl: string;
   thumbnailUrl: string;
+  digg_count?: number;
 }
 
 /**
@@ -74,8 +77,9 @@ export interface ExtractedPrompt {
  */
 const checkApiKeyStatus = async (): Promise<boolean> => {
   try {
-    const response = await fetch("/api/tiktok?type=trending");
-    return response.ok;
+    // Directly check if we can fetch trending prompts
+    await fetchTrendingPromptsFromMain();
+    return true;
   } catch (error) {
     console.error("Error checking API status:", error);
     return false;
@@ -88,16 +92,8 @@ const checkApiKeyStatus = async (): Promise<boolean> => {
  */
 const fetchTrendingPrompts = async (): Promise<ExtractedPrompt[]> => {
   try {
-    const response = await fetch("/api/tiktok?type=trending");
-
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch trending prompts: ${response.statusText}`
-      );
-    }
-
-    const data = await response.json();
-    return data.prompts || [];
+    // Use the main implementation directly
+    return await fetchTrendingPromptsFromMain();
   } catch (error) {
     console.error("Error fetching trending prompts:", error);
     return [];
