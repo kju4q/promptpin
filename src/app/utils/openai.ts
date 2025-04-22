@@ -151,3 +151,31 @@ export async function enhancePrompt(promptText: string): Promise<string> {
     throw error;
   }
 }
+
+// Function to rewrite a fallback prompt to make it more usable
+export async function rewriteFallbackPrompt(
+  fallbackPrompt: string
+): Promise<string> {
+  try {
+    const systemPrompt = `You are a helpful assistant that rewrites AI prompts to make them more usable and effective.
+Your task is to take a potentially nonsensical or poorly formed prompt and transform it into something that a user could actually paste into ChatGPT or Claude.
+Focus on:
+1. Making the prompt clear and actionable
+2. Ensuring it has a specific purpose or outcome
+3. Removing any nonsensical elements
+4. Adding context where needed
+5. Making it sound natural and like something a real user would ask
+
+Return ONLY the rewritten prompt without any explanations or additional text.`;
+
+    const userPrompt = `Rewrite this fallback prompt into a usable prompt someone could paste into ChatGPT or Claude:
+"${fallbackPrompt}"`;
+
+    const responseContent = await makeOpenAICall(systemPrompt, userPrompt);
+    return responseContent.trim();
+  } catch (error) {
+    console.error("Error rewriting fallback prompt:", error);
+    // Return the original prompt if there's an error
+    return fallbackPrompt;
+  }
+}
