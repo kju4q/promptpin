@@ -390,6 +390,7 @@ export function processComment(comment: TikTokComment): ExtractedPrompt | null {
       videoUrl: "", // Comment doesn't have video URL
       thumbnailUrl: "", // Comment doesn't have thumbnail
       digg_count: comment.digg_count,
+      sourceType: "comment",
     };
   }
 
@@ -406,8 +407,16 @@ export async function fetchVideoComments(
     throw new Error("TikAPI keys not configured");
   }
 
+  if (!videoId) {
+    console.error("No video ID provided for fetching comments");
+    return [];
+  }
+
   try {
-    const response = await axios.get(`${TIKAPI_BASE_URL}/video/comments`, {
+    console.log(`Fetching comments for video ID: ${videoId}`);
+
+    // Use the correct endpoint: /video/comment/list
+    const response = await axios.get(`${TIKAPI_BASE_URL}/video/comment/list`, {
       params: { video_id: videoId, count: 50 },
       headers: {
         "X-API-KEY": TIKAPI_KEY,
@@ -416,9 +425,18 @@ export async function fetchVideoComments(
       },
     });
 
+    if (!response?.data?.comments) {
+      console.warn(`No comments found for video ID: ${videoId}`);
+      return [];
+    }
+
     return response.data.comments || [];
-  } catch (error) {
-    console.error("Error fetching comments:", error);
+  } catch (error: any) {
+    console.error(`Error fetching comments for video ID ${videoId}:`, error);
+    if (error.response) {
+      console.error("Response status:", error.response.status);
+      console.error("Response data:", error.response.data);
+    }
     return [];
   }
 }
@@ -440,11 +458,35 @@ export async function extractPromptFromVideo(
         video.video.playAddr || video.video.downloadAddr || video.video.play,
       thumbnailUrl: video.video.cover || video.video.originCover,
       digg_count: video.stats?.diggCount,
+      sourceType: "description",
     };
   }
 
+  // Log video object to debug
+  console.log("Video object for comment extraction:", {
+    id: video.id,
+    item_id: video.item_id,
+    video_id: video.video_id,
+    desc: video.desc,
+    text: video.text,
+  });
+
   // Try to extract prompt from comments
-  const comments = await fetchVideoComments(video.id || video.item_id);
+  // Use item_id as the canonical TikAPI reference ID for /video/comment/list
+  const videoId = video.item_id;
+
+  if (!videoId) {
+    console.error("No valid item_id found for fetching comments");
+    return null;
+  }
+
+  console.log(
+    "Trying to fetch comments for item_id:",
+    video.item_id,
+    "id:",
+    video.id
+  );
+  const comments = await fetchVideoComments(videoId);
 
   for (const comment of comments) {
     const commentPrompt = processComment(comment);
@@ -454,6 +496,7 @@ export async function extractPromptFromVideo(
         videoUrl:
           video.video.playAddr || video.video.downloadAddr || video.video.play,
         thumbnailUrl: video.video.cover || video.video.originCover,
+        sourceType: "comment",
       };
     }
   }
@@ -466,6 +509,10 @@ export async function extractPromptFromVideo(
  */
 export async function fetchTrendingPrompts(): Promise<ExtractedPrompt[]> {
   if (!TIKAPI_KEY || !TIKAPI_ACCOUNT_KEY) {
+    console.error("TikAPI keys not configured:", {
+      TIKAPI_KEY: TIKAPI_KEY ? "defined" : "undefined",
+      TIKAPI_ACCOUNT_KEY: TIKAPI_ACCOUNT_KEY ? "defined" : "undefined",
+    });
     throw new Error("TikAPI keys not configured");
   }
 
@@ -566,6 +613,7 @@ export async function fetchTrendingPrompts(): Promise<ExtractedPrompt[]> {
               author: authorInfo,
               videoUrl: videoInfo.url,
               thumbnailUrl: videoInfo.thumbnail,
+              sourceType: "generated",
             });
 
             console.log(

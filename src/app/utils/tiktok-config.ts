@@ -1,7 +1,7 @@
 // TikTok API Configuration
 export const TIKAPI_BASE_URL = "https://api.tikapi.io";
 export const TIKAPI_KEY = process.env.NEXT_PUBLIC_TIKAPI_KEY;
-export const TIKAPI_ACCOUNT_KEY = process.env.TIKAPI_ACCOUNT_KEY;
+export const TIKAPI_ACCOUNT_KEY = process.env.NEXT_PUBLIC_TIKAPI_ACCOUNT_KEY;
 
 // TikTok API Types
 export interface SubtitleInfo {
@@ -21,6 +21,7 @@ export interface ExtractedPrompt {
   videoUrl: string;
   thumbnailUrl: string;
   digg_count?: number;
+  sourceType: "description" | "comment" | "generated";
 }
 
 export interface TikTokComment {
