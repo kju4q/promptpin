@@ -23,15 +23,9 @@ export default function PromptCard({
   isSaved = false,
   showSaveButton = true,
 }: PromptCardProps) {
-  const router = useRouter();
   const [isHovered, setIsHovered] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { incrementViews, incrementUses } = usePromptStatsStore();
-
-  // Use a stable height based on prompt ID
-  const heightIndex =
-    prompt.id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) %
-    heightClasses.length;
 
   const handleSave = async () => {
     setIsLoading(true);
