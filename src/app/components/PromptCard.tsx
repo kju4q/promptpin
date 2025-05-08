@@ -32,7 +32,6 @@ export default function PromptCard({
   const heightIndex =
     prompt.id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) %
     heightClasses.length;
-  const cardHeight = heightClasses[heightIndex];
 
   const handleSave = async () => {
     setIsLoading(true);
