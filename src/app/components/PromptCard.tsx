@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Prompt } from "@/app/types/prompt";
 import { usePromptStatsStore } from "@/app/store/promptStatsStore";
 
@@ -13,8 +12,6 @@ interface PromptCardProps {
   isSaved?: boolean;
   showSaveButton?: boolean;
 }
-
-const heightClasses = ["min-h-[180px]", "min-h-[220px]", "min-h-[260px]"];
 
 export default function PromptCard({
   prompt,
