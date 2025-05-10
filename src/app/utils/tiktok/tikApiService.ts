@@ -1,14 +1,3 @@
-import axios from "axios";
-import { rewriteFallbackPrompt } from "../openai";
-import {
-  TIKAPI_BASE_URL,
-  TIKAPI_KEY,
-  TIKAPI_ACCOUNT_KEY,
-  SubtitleInfo,
-  TextExtra,
-  TikTokComment,
-} from "../tiktok-config";
-
 /**
  * Check if the TikTok API is working by attempting to fetch trending prompts
  * @returns Boolean indicating if the API is working
