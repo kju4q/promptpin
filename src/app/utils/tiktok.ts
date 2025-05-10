@@ -403,6 +403,16 @@ export function processComment(comment: TikTokComment): ExtractedPrompt | null {
 export async function fetchVideoComments(
   videoId: string
 ): Promise<TikTokComment[]> {
+  if (typeof window === "undefined") {
+    console.log("Server-side execution. Skipping TikTok fetch.");
+    return [];
+  }
+
+  // Only run fetch if user is on /tiktok page
+  if (typeof window !== "undefined" && window.location.pathname !== "/tiktok") {
+    console.log("User not on TikTok page. Skipping fetch.");
+    return [];
+  }
   if (!TIKAPI_KEY || !TIKAPI_ACCOUNT_KEY) {
     throw new Error("TikAPI keys not configured");
   }

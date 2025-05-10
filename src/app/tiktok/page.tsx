@@ -92,7 +92,7 @@ export default function TikTokPage() {
   // Convert ExtractedPrompt to Prompt format for PromptGrid
   const formattedPrompts: Prompt[] = prompts.map((p, index) => ({
     id: `tiktok-${index}`,
-    title: p.creativeTitle,
+    title: p.creativeTitle || p.prompt.slice(0, 50) + "...",
     description: `AI prompt from TikTok video by ${p.author}`,
     promptText: p.prompt,
     category: "TikTok",

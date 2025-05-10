@@ -1,4 +1,13 @@
-import { ExtractedPrompt } from "../tiktok-config";
+import axios from "axios";
+import { rewriteFallbackPrompt } from "../openai";
+import {
+  TIKAPI_BASE_URL,
+  TIKAPI_KEY,
+  TIKAPI_ACCOUNT_KEY,
+  SubtitleInfo,
+  TextExtra,
+  TikTokComment,
+} from "../tiktok-config";
 
 /**
  * Check if the TikTok API is working by attempting to fetch trending prompts
@@ -34,6 +43,16 @@ const fetchTrendingPrompts = async (): Promise<ExtractedPrompt[]> => {
     console.error("Error fetching trending prompts:", error);
     return [];
   }
+};
+
+export type ExtractedPrompt = {
+  prompt: string;
+  author: string;
+  videoUrl: string;
+  thumbnailUrl: string;
+  digg_count?: number;
+  sourceType: "description" | "comment" | "generated";
+  creativeTitle?: string;
 };
 
 export { checkApiKeyStatus, fetchTrendingPrompts };
