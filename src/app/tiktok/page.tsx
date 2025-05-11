@@ -1,3 +1,23 @@
+/**
+ * TikTok AI Prompts Page
+ *
+ * This page fetches trending TikTok videos and extracts AI-related prompts from them.
+ * The data is collected through the following process:
+ * 1. Fetches trending TikTok videos using the TikTok API
+ * 2. Filters videos that contain AI-related hashtags or descriptions
+ * 3. Extracts prompts from either:
+ *    - Video descriptions
+ *    - Video comments
+ *    - Generated from video content (if no direct prompt is found)
+ * 4. Displays the prompts in a grid format with options to save them
+ *
+ * Each prompt includes:
+ * - The prompt text
+ * - The original video author
+ * - Source type (description/comment/generated)
+ * - Video thumbnail and link
+ */
+
 "use client";
 
 import React, { useEffect, useState } from "react";

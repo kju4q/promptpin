@@ -46,16 +46,29 @@ export default function Header({ onAddClick }: HeaderProps) {
         </Link>
 
         {/* Navigation Links */}
-        <div className="hidden md:flex items-center space-x-6">
-          <Link href="/" className="text-gray-600 hover:text-rose-500">
-            Home
-          </Link>
-          <Link href="/saved" className="text-gray-600 hover:text-rose-500">
-            Saved
-          </Link>
-          <Link href="/tiktok" className="text-gray-600 hover:text-rose-500">
-            TikTok
-          </Link>
+        <div className="hidden md:flex items-center">
+          <div className="flex space-x-6">
+            <Link href="/" className="text-gray-600 hover:text-rose-500">
+              Home
+            </Link>
+            <Link href="/saved" className="text-gray-600 hover:text-rose-500">
+              Saved
+            </Link>
+            <Link href="/tiktok" className="text-gray-600 hover:text-rose-500">
+              TikTok
+            </Link>
+          </div>
+          <div className="ml-6 pl-6 border-l border-gray-200">
+            <Link
+              href="/info"
+              className="text-gray-600 hover:text-rose-500 flex items-center"
+            >
+              <span>How It Works</span>
+              <span className="ml-1.5 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                New
+              </span>
+            </Link>
+          </div>
         </div>
 
         {/* Icons - Only Heart and User Avatar */}
