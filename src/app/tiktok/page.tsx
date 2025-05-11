@@ -14,6 +14,7 @@ import {
   savePrompt,
   unsavePrompt,
 } from "../utils/promptStorage";
+import { generatePromptId } from "../utils/promptUtils";
 
 export default function TikTokPage() {
   const { toast } = useToast();
@@ -91,7 +92,7 @@ export default function TikTokPage() {
 
   // Convert ExtractedPrompt to Prompt format for PromptGrid
   const formattedPrompts: Prompt[] = prompts.map((p, index) => ({
-    id: `tiktok-${index}`,
+    id: generatePromptId("tiktok", index),
     title: p.creativeTitle || p.prompt.slice(0, 50) + "...",
     description: `AI prompt from TikTok video by ${p.author}`,
     promptText: p.prompt,
