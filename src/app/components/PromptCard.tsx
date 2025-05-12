@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { Prompt } from "@/app/types/prompt";
 import { usePromptStatsStore } from "@/app/store/promptStatsStore";
+import PromptTreeTooltip from "./PromptTreeTooltip";
 
 interface PromptCardProps {
   prompt: Prompt;
@@ -23,6 +24,7 @@ export default function PromptCard({
   const [isHovered, setIsHovered] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { incrementViews, incrementUses } = usePromptStatsStore();
+  const hoverTimeoutRef = useRef<NodeJS.Timeout>();
 
   const handleSave = async () => {
     setIsLoading(true);
@@ -59,14 +61,34 @@ export default function PromptCard({
     }
   };
 
+  const handleMouseEnter = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+    setIsHovered(true);
+    incrementViews(prompt.id);
+  };
+
+  const handleMouseLeave = () => {
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsHovered(false);
+    }, 100); // 100ms delay before hiding
+  };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+    };
+  }, []);
+
   return (
     <div
       className={`group relative bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden break-inside-avoid mb-2`}
-      onMouseEnter={() => {
-        setIsHovered(true);
-        incrementViews(prompt.id);
-      }}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       {showSaveButton && (
         <button
@@ -156,6 +178,15 @@ export default function PromptCard({
           </button>
         </div>
       </div>
+
+      {/* Tooltip */}
+      {isHovered && (
+        <div className="absolute left-full top-0 ml-2 z-50 pointer-events-none">
+          <div className="pointer-events-auto transform transition-all duration-200 ease-out scale-95 opacity-0 animate-in fade-in-0 zoom-in-95">
+            <PromptTreeTooltip />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
