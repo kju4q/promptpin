@@ -24,7 +24,7 @@ export default function PromptCard({
   const [isHovered, setIsHovered] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { incrementViews, incrementUses } = usePromptStatsStore();
-  const hoverTimeoutRef = useRef<NodeJS.Timeout>();
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleSave = async () => {
     setIsLoading(true);
@@ -72,7 +72,7 @@ export default function PromptCard({
   const handleMouseLeave = () => {
     hoverTimeoutRef.current = setTimeout(() => {
       setIsHovered(false);
-    }, 100); // 100ms delay before hiding
+    }, 100);
   };
 
   // Cleanup timeout on unmount
