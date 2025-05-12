@@ -181,8 +181,8 @@ export default function PromptCard({
 
       {/* Tooltip */}
       {isHovered && (
-        <div className="absolute left-full top-0 ml-2 z-50 pointer-events-none">
-          <div className="pointer-events-auto transform transition-all duration-200 ease-out scale-95 opacity-0 animate-in fade-in-0 zoom-in-95">
+        <div className="absolute left-full top-0 ml-2 z-50">
+          <div className="transform transition-all duration-200 ease-out animate-in fade-in zoom-in-95">
             <PromptTreeTooltip />
           </div>
         </div>

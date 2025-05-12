@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useMemo } from "react";
 import ReactFlow, {
   Background,
   Node,
@@ -13,6 +15,7 @@ interface NodeData {
   label: string;
 }
 
+// Define node components separately
 const InputNode = ({ data }: { data: NodeData }) => (
   <div className="px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs">
     <Handle type="source" position={Position.Right} id="right" />
@@ -35,57 +38,68 @@ const DefaultNode = ({ data }: { data: NodeData }) => (
   </div>
 );
 
-// Define node types outside the component
-const nodeTypes: NodeTypes = {
-  input: InputNode,
-  output: OutputNode,
-  default: DefaultNode,
-};
-
-const initialNodes: Node<NodeData>[] = [
-  {
-    id: "1",
-    type: "input",
-    data: { label: "Original" },
-    position: { x: 0, y: 0 },
-  },
-  {
-    id: "2",
-    type: "default",
-    data: { label: "Refined" },
-    position: { x: 100, y: 0 },
-  },
-  {
-    id: "3",
-    type: "output",
-    data: { label: "Final" },
-    position: { x: 200, y: 0 },
-  },
-];
-
-const initialEdges: Edge[] = [
-  {
-    id: "e1-2",
-    source: "1",
-    target: "2",
-    sourceHandle: "right",
-    targetHandle: "left",
-  },
-  {
-    id: "e2-3",
-    source: "2",
-    target: "3",
-    sourceHandle: "right",
-    targetHandle: "left",
-  },
-];
-
 export default function PromptTreeTooltip() {
+  // Use useMemo to memoize nodeTypes
+  const nodeTypes = useMemo(
+    () => ({
+      input: InputNode,
+      output: OutputNode,
+      default: DefaultNode,
+    }),
+    []
+  );
+
+  // Memoize nodes
+  const nodes = useMemo<Node<NodeData>[]>(
+    () => [
+      {
+        id: "1",
+        type: "input",
+        data: { label: "Original" },
+        position: { x: 0, y: 0 },
+      },
+      {
+        id: "2",
+        type: "default",
+        data: { label: "Refined" },
+        position: { x: 100, y: 0 },
+      },
+      {
+        id: "3",
+        type: "output",
+        data: { label: "Final" },
+        position: { x: 200, y: 0 },
+      },
+    ],
+    []
+  );
+
+  // Memoize edges
+  const edges = useMemo<Edge[]>(
+    () => [
+      {
+        id: "e1-2",
+        source: "1",
+        target: "2",
+        sourceHandle: "right",
+        targetHandle: "left",
+      },
+      {
+        id: "e2-3",
+        source: "2",
+        target: "3",
+        sourceHandle: "right",
+        targetHandle: "left",
+      },
+    ],
+    []
+  );
+
   return (
     <div className="w-[200px] h-[120px] bg-white rounded-lg shadow-lg border border-gray-200 transform transition-all duration-200 ease-out scale-100">
       <ReactFlow
-        nodes={initialNodes}
-        edges={initialEdges}
+        nodes={nodes}
+        edges={edges}
         nodeTypes={nodeTypes}
         fitView
         minZoom={0.5}
