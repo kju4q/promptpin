@@ -25,6 +25,10 @@ export default function PromptCard({
   const [isLoading, setIsLoading] = useState(false);
   const { incrementViews, incrementUses } = usePromptStatsStore();
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [tooltipPosition, setTooltipPosition] = useState<"right" | "left">(
+    "right"
+  );
 
   const handleSave = async () => {
     setIsLoading(true);
@@ -67,6 +71,14 @@ export default function PromptCard({
     }
     setIsHovered(true);
     incrementViews(prompt.id);
+
+    // Check available space
+    if (cardRef.current) {
+      const rect = cardRef.current.getBoundingClientRect();
+      const spaceOnRight = window.innerWidth - rect.right;
+      const spaceOnLeft = rect.left;
+      setTooltipPosition(spaceOnRight >= 220 ? "right" : "left");
+    }
   };
 
   const handleMouseLeave = () => {
@@ -84,9 +96,12 @@ export default function PromptCard({
     };
   }, []);
 
+  console.log("Current hover state:", isHovered);
+
   return (
     <div
-      className={`group relative bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden break-inside-avoid mb-2`}
+      ref={cardRef}
+      className={`group relative bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-visible break-inside-avoid mb-2`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -181,8 +196,14 @@ export default function PromptCard({
 
       {/* Tooltip */}
       {isHovered && (
-        <div className="absolute left-full top-0 ml-2 z-50">
-          <div className="transform transition-all duration-200 ease-out animate-in fade-in zoom-in-95">
+        <div
+          className={`absolute z-[9999] ${
+            tooltipPosition === "right"
+              ? "left-[calc(100%+8px)]"
+              : "right-[calc(100%+8px)]"
+          } top-0`}
+        >
+          <div className="transform transition-all duration-200 ease-out">
             <PromptTreeTooltip />
           </div>
         </div>
