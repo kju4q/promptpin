@@ -8,7 +8,7 @@ import "reactflow/dist/style.css";
 // Flow configuration
 const flowConfig: Partial<ReactFlowProps> = {
   fitView: true,
-  minZoom: 0.5,
+  minZoom: 0.8,
   maxZoom: 1,
   nodesDraggable: false,
   nodesConnectable: false,
@@ -20,14 +20,14 @@ const flowConfig: Partial<ReactFlowProps> = {
 
 export default function PromptTreeTooltip() {
   return (
-    <div className="w-[200px] h-[120px] bg-white rounded-lg shadow-lg border border-gray-200">
+    <div className="w-56 h-28 bg-white rounded-lg shadow-lg border border-gray-200">
       <ReactFlow
         nodes={INITIAL_NODES}
         edges={INITIAL_EDGES}
         nodeTypes={NODE_TYPES}
         {...flowConfig}
       >
-        <Background color="#f1f5f9" gap={16} />
+        <Background color="#f8fafc" gap={16} />
       </ReactFlow>
     </div>
   );

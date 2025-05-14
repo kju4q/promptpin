@@ -5,71 +5,108 @@ interface NodeData {
   label: string;
 }
 
-// Define node components
-export const InputNode = ({ data }: { data: NodeData }) => (
-  <div className="px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs">
-    <Handle type="source" position={Position.Right} id="right" />
+// Cozy, soft, slightly larger node components
+export const BlueNode = ({ data }: { data: NodeData }) => (
+  <div className="w-10 h-10 flex items-center justify-center bg-blue-100 text-blue-700 rounded-md shadow font-bold text-sm relative">
+    <Handle
+      type="source"
+      position={Position.Right}
+      id="right"
+      className="!w-2.5 !h-2.5 !bg-blue-200 !border-2 !border-white"
+    />
     {data.label}
   </div>
 );
 
-export const OutputNode = ({ data }: { data: NodeData }) => (
-  <div className="px-2 py-1 bg-green-50 text-green-600 rounded text-xs">
-    <Handle type="target" position={Position.Left} id="left" />
+export const PurpleNode = ({ data }: { data: NodeData }) => (
+  <div className="w-10 h-10 flex items-center justify-center bg-purple-100 text-purple-700 rounded-md shadow font-bold text-sm relative">
+    <Handle
+      type="target"
+      position={Position.Left}
+      id="left"
+      className="!w-2.5 !h-2.5 !bg-purple-200 !border-2 !border-white"
+    />
+    <Handle
+      type="source"
+      position={Position.Right}
+      id="right"
+      className="!w-2.5 !h-2.5 !bg-purple-200 !border-2 !border-white"
+    />
     {data.label}
   </div>
 );
 
-export const DefaultNode = ({ data }: { data: NodeData }) => (
-  <div className="px-2 py-1 bg-gray-50 text-gray-600 rounded text-xs">
-    <Handle type="target" position={Position.Left} id="left" />
-    <Handle type="source" position={Position.Right} id="right" />
+export const PinkNode = ({ data }: { data: NodeData }) => (
+  <div className="w-10 h-10 flex items-center justify-center bg-pink-100 text-pink-700 rounded-md shadow font-bold text-sm relative">
+    <Handle
+      type="target"
+      position={Position.Left}
+      id="left"
+      className="!w-2.5 !h-2.5 !bg-pink-200 !border-2 !border-white"
+    />
     {data.label}
   </div>
 );
 
-// Export nodeTypes object
 export const NODE_TYPES: NodeTypes = {
-  input: InputNode,
-  output: OutputNode,
-  default: DefaultNode,
+  blue: BlueNode,
+  purple: PurpleNode,
+  pink: PinkNode,
 };
 
-// Define initial nodes and edges
 export const INITIAL_NODES = [
   {
-    id: "1",
-    type: "input",
-    data: { label: "Original" },
-    position: { x: 0, y: 0 },
+    id: "A",
+    type: "blue",
+    data: { label: "A" },
+    position: { x: 0, y: 28 },
   },
   {
-    id: "2",
-    type: "default",
-    data: { label: "Refined" },
-    position: { x: 100, y: 0 },
+    id: "B",
+    type: "purple",
+    data: { label: "B" },
+    position: { x: 60, y: 0 },
   },
   {
-    id: "3",
-    type: "output",
-    data: { label: "Final" },
-    position: { x: 200, y: 0 },
+    id: "C",
+    type: "purple",
+    data: { label: "C" },
+    position: { x: 60, y: 56 },
+  },
+  {
+    id: "D",
+    type: "pink",
+    data: { label: "D" },
+    position: { x: 120, y: 28 },
   },
 ];
 
 export const INITIAL_EDGES = [
   {
-    id: "e1-2",
-    source: "1",
-    target: "2",
+    id: "A-B",
+    source: "A",
+    target: "B",
     sourceHandle: "right",
     targetHandle: "left",
+    style: { stroke: "#cbd5e1", strokeWidth: 2 },
+    type: "straight",
   },
   {
-    id: "e2-3",
-    source: "2",
-    target: "3",
+    id: "A-C",
+    source: "A",
+    target: "C",
     sourceHandle: "right",
     targetHandle: "left",
+    style: { stroke: "#cbd5e1", strokeWidth: 2 },
+    type: "straight",
+  },
+  {
+    id: "B-D",
+    source: "B",
+    target: "D",
+    sourceHandle: "right",
+    targetHandle: "left",
+    style: { stroke: "#cbd5e1", strokeWidth: 2 },
+    type: "straight",
   },
 ];
