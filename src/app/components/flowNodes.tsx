@@ -5,7 +5,6 @@ interface NodeData {
   label: string;
 }
 
-// Cozy, soft, slightly larger node components
 export const BlueNode = ({ data }: { data: NodeData }) => (
   <div className="w-10 h-10 flex items-center justify-center bg-blue-100 text-gray-400 rounded-md shadow font-medium text-sm lowercase relative">
     <Handle
