@@ -14,6 +14,8 @@ interface PromptCardProps {
   showSaveButton?: boolean;
 }
 
+const TOOLTIP_WIDTH = 220; // px, must match the tooltip's actual width
+
 export default function PromptCard({
   prompt,
   onSave,
@@ -77,7 +79,7 @@ export default function PromptCard({
       const rect = cardRef.current.getBoundingClientRect();
       const spaceOnRight = window.innerWidth - rect.right;
       const spaceOnLeft = rect.left;
-      setTooltipPosition(spaceOnRight >= 220 ? "right" : "left");
+      setTooltipPosition(spaceOnRight >= TOOLTIP_WIDTH ? "right" : "left");
     }
   };
 
@@ -204,7 +206,12 @@ export default function PromptCard({
           } top-0`}
         >
           <div className="transform transition-all duration-200 ease-out">
-            <PromptTreeTooltip />
+            <div
+              style={{ width: TOOLTIP_WIDTH }}
+              className="h-28 bg-white rounded-lg shadow-lg border border-gray-200"
+            >
+              <PromptTreeTooltip />
+            </div>
           </div>
         </div>
       )}
