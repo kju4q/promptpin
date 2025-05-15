@@ -15,6 +15,7 @@ interface PromptCardProps {
 }
 
 const TOOLTIP_WIDTH = 220; // px, must match the tooltip's actual width
+const TOOLTIP_GAP = 8; // px, space between card and tooltip
 
 export default function PromptCard({
   prompt,
@@ -201,8 +202,8 @@ export default function PromptCard({
         <div
           className={`absolute z-[9999] ${
             tooltipPosition === "right"
-              ? "left-[calc(100%+8px)]"
-              : "right-[calc(100%+8px)]"
+              ? `left-[calc(100%+${TOOLTIP_GAP}px)]`
+              : `right-[calc(100%+${TOOLTIP_GAP}px)]`
           } top-0`}
         >
           <div className="transform transition-all duration-200 ease-out">
