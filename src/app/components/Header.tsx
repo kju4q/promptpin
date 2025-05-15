@@ -112,7 +112,6 @@ export default function Header({ onAddClick }: HeaderProps) {
           </Link>
 
           <div className="w-8 h-8 bg-gray-200 rounded-full overflow-hidden">
-            {/* Profile image placeholder */}
             <div className="w-full h-full flex items-center justify-center">
               <span className="text-sm font-semibold text-gray-600">U</span>
             </div>
