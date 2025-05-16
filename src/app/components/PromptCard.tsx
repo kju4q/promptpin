@@ -79,7 +79,6 @@ export default function PromptCard({
     if (cardRef.current) {
       const rect = cardRef.current.getBoundingClientRect();
       const spaceOnRight = window.innerWidth - rect.right;
-      const spaceOnLeft = rect.left;
       setTooltipPosition(spaceOnRight >= TOOLTIP_WIDTH ? "right" : "left");
     }
   };
@@ -98,8 +97,6 @@ export default function PromptCard({
       }
     };
   }, []);
-
-  console.log("Current hover state:", isHovered);
 
   return (
     <div
@@ -200,6 +197,7 @@ export default function PromptCard({
       {/* Tooltip */}
       {isHovered && (
         <div
+          style={{ width: TOOLTIP_WIDTH }}
           className={`absolute z-[9999] ${
             tooltipPosition === "right"
               ? `left-[calc(100%+${TOOLTIP_GAP}px)]`
@@ -207,10 +205,7 @@ export default function PromptCard({
           } top-0`}
         >
           <div className="transform transition-all duration-200 ease-out">
-            <div
-              style={{ width: TOOLTIP_WIDTH }}
-              className="h-28 bg-white rounded-lg shadow-lg border border-gray-200"
-            >
+            <div className="h-28 bg-white rounded-lg shadow-lg border border-gray-200">
               <PromptTreeTooltip />
             </div>
           </div>
