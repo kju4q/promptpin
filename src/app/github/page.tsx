@@ -6,7 +6,6 @@ import Header from "../components/Header";
 export default function GithubPage() {
   return (
     <div className="flex flex-col h-screen relative">
-      {/* Blurry overlay covers the whole page */}
       <div className="fixed inset-0 z-0 bg-white/60 backdrop-blur-sm" />
       <Header />
       <main className="flex-1 flex flex-col items-center justify-center relative z-10 min-h-screen">
