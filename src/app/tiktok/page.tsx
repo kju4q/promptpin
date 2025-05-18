@@ -124,6 +124,18 @@ export default function TikTokPage() {
               <div className="flex justify-center items-center py-20">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
               </div>
+            ) : formattedPrompts.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20">
+                <h2 className="text-xl font-semibold mb-2 text-gray-800">
+                  Prompt feed is still warming up
+                </h2>
+                <p className="text-gray-500 max-w-md text-center">
+                  We're building the pipeline that turns TikTok AI content into
+                  clean, usable prompts. Sometimes the trending data doesn't
+                  cooperate — or the content just isn't great yet. Check back
+                  soon or refresh to try again.
+                </p>
+              </div>
             ) : (
               <PromptGrid
                 prompts={formattedPrompts}
