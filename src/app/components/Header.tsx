@@ -53,6 +53,9 @@ export default function Header() {
             <Link href="/tiktok" className="text-gray-600 hover:text-rose-500">
               TikTok
             </Link>
+            <Link href="/github" className="text-gray-600 hover:text-rose-500">
+              Github
+            </Link>
           </div>
           <div className="ml-6 pl-6 border-l border-gray-200">
             <Link
