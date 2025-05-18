@@ -13,11 +13,11 @@ export default function GithubPage() {
         {/* Modal */}
         <div className="px-8 py-6 bg-white rounded-2xl shadow-xl border border-gray-100 max-w-md w-full flex flex-col items-center">
           <h2 className="text-2xl font-semibold text-gray-900 mb-2 text-center">
-            GitHub prompts are coming soon
+            GitHub prompts are on the way
           </h2>
           <p className="text-gray-500 text-center">
-            We're working on bringing you the best GitHub prompt ideas. Stay
-            tuned!
+            We’re indexing the best dev workflows, prompt chains, and automation
+            tricks. Shipping soon.
           </p>
         </div>
         {/* Card shadows */}
