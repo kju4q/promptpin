@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Prompt } from "../../types/prompt";
 import { examplePrompts } from "../../data/example-prompts";
 import {
@@ -32,6 +32,7 @@ const ensurePromptFields = (prompt: Partial<Prompt>): Prompt => {
 export default function PromptDetailClient({ promptId }: { promptId: string }) {
   const router = useRouter();
   const { toast } = useToast();
+  const pathname = usePathname();
   const [prompt, setPrompt] = useState<Prompt | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaved, setIsSaved] = useState(false);
@@ -313,6 +314,30 @@ export default function PromptDetailClient({ promptId }: { promptId: string }) {
     <div className="min-h-screen bg-white">
       <Header />
       <div className="max-w-4xl mx-auto px-4 py-8">
+        {/* Submenu */}
+        <div className="flex space-x-4 border-b border-gray-200 mb-6">
+          <Link
+            href={`/prompt/${promptId}`}
+            className={`pb-2 ${
+              pathname === `/prompt/${promptId}`
+                ? "border-b-2 border-rose-500 text-rose-600 font-semibold"
+                : "text-gray-600 hover:text-rose-500"
+            }`}
+          >
+            Details
+          </Link>
+          <Link
+            href={`/prompt/${promptId}/tree`}
+            className={`pb-2 ${
+              pathname === `/prompt/${promptId}/tree`
+                ? "border-b-2 border-rose-500 text-rose-600 font-semibold"
+                : "text-gray-600 hover:text-rose-500"
+            }`}
+          >
+            Prompt Tree
+          </Link>
+        </div>
+
         <div className="mb-6">
           <Link
             href="/"
