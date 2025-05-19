@@ -313,9 +313,9 @@ export default function PromptDetailClient({ promptId }: { promptId: string }) {
   return (
     <div className="min-h-screen bg-white">
       <Header />
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Submenu */}
-        <div className="flex space-x-4 border-b border-gray-200 mb-6">
+      {/* Sticky Submenu */}
+      <div className="sticky top-0 z-10 bg-white border-b border-gray-200">
+        <div className="flex space-x-4 max-w-4xl mx-auto px-4">
           <Link
             href={`/prompt/${promptId}`}
             className={`pb-2 ${
@@ -337,7 +337,8 @@ export default function PromptDetailClient({ promptId }: { promptId: string }) {
             Prompt Tree
           </Link>
         </div>
-
+      </div>
+      <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="mb-6">
           <Link
             href="/"
