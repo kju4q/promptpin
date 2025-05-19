@@ -313,7 +313,6 @@ export default function PromptDetailClient({ promptId }: { promptId: string }) {
   return (
     <div className="min-h-screen bg-white">
       <Header />
-      {/* Sticky Submenu */}
       <div className="sticky top-0 z-10 bg-white border-b border-gray-200">
         <div className="flex space-x-4 max-w-4xl mx-auto px-4">
           <Link

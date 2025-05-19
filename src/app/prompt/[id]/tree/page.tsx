@@ -14,7 +14,6 @@ export default function PromptTreePage() {
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       <Header />
-      {/* Sticky Submenu */}
       <div className="sticky top-0 z-10 bg-white border-b border-gray-200">
         <div className="flex space-x-4 max-w-4xl mx-auto px-4">
           <Link
@@ -39,8 +38,8 @@ export default function PromptTreePage() {
           </Link>
         </div>
       </div>
-      <main className="flex-1 flex flex-col items-center justify-center">
-        <div className="max-w-4xl w-full px-4 py-8">
+      <main className="flex-1">
+        <div className="max-w-4xl w-full mx-auto px-4 py-8">
           <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-8 flex flex-col items-center">
             <h2 className="text-xl font-semibold mb-4 text-gray-900">
               Prompt Tree
