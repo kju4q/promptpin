@@ -2,52 +2,46 @@
 
 import React from "react";
 import Header from "../../../components/Header";
-import PromptTreeTooltip from "../../../components/PromptTreeTooltip";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
+import PromptSubmenu from "../../../components/PromptSubmenu";
 
 export default function PromptTreePage() {
   const params = useParams();
   const pathname = usePathname();
-  const promptId = params.id;
+  const promptId = params.id as string;
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
-      <Header />
-      <div className="sticky top-0 z-10 bg-white border-b border-gray-200">
-        <div className="flex space-x-4 max-w-4xl mx-auto px-4">
-          <Link
-            href={`/prompt/${promptId}`}
-            className={`pb-2 ${
-              pathname === `/prompt/${promptId}`
-                ? "border-b-2 border-rose-500 text-rose-600 font-semibold"
-                : "text-gray-600 hover:text-rose-500"
-            }`}
-          >
-            Details
-          </Link>
-          <Link
-            href={`/prompt/${promptId}/tree`}
-            className={`pb-2 ${
-              pathname === `/prompt/${promptId}/tree`
-                ? "border-b-2 border-rose-500 text-rose-600 font-semibold"
-                : "text-gray-600 hover:text-rose-500"
-            }`}
-          >
-            Prompt Tree
-          </Link>
-        </div>
-      </div>
-      <main className="flex-1">
-        <div className="max-w-4xl w-full mx-auto px-4 py-8">
-          <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-8 flex flex-col items-center">
-            <h2 className="text-xl font-semibold mb-4 text-gray-900">
-              Prompt Tree
+    <div className="flex flex-col h-screen relative">
+      {/* Blurry cover for entire page */}
+      <div className="fixed inset-0 z-0 bg-white/60 backdrop-blur-sm" />
+
+      {/* Content */}
+      <div className="relative z-10">
+        <Header />
+        <PromptSubmenu promptId={promptId} activeTab="tree" />
+        <main className="flex-1 flex flex-col items-center justify-center min-h-[calc(100vh-8rem)]">
+          {/* Modal */}
+          <div className="px-8 py-6 bg-white rounded-2xl shadow-xl border border-gray-100 max-w-md w-full flex flex-col items-center">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-2 text-center">
+              Prompt Tree Coming Soon
             </h2>
-            <PromptTreeTooltip />
+            <p className="text-gray-500 text-center">
+              We're building a beautiful visualization of how prompts connect
+              and evolve. Stay tuned!
+            </p>
           </div>
-        </div>
-      </main>
+          {/* Card shadows */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 w-full max-w-5xl px-4 mt-12">
+            {[...Array(6)].map((_, i) => (
+              <div
+                key={i}
+                className="h-32 bg-white rounded-xl shadow-lg border border-gray-100 opacity-60"
+              />
+            ))}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
