@@ -2,13 +2,11 @@
 
 import React from "react";
 import Header from "../../../components/Header";
-import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import PromptSubmenu from "../../../components/PromptSubmenu";
 
 export default function PromptTreePage() {
   const params = useParams();
-  const pathname = usePathname();
   const promptId = params.id as string;
 
   return (
@@ -24,8 +22,8 @@ export default function PromptTreePage() {
               Prompt Tree Coming Soon
             </h2>
             <p className="text-gray-500 text-center">
-              We're building a beautiful visualization of how prompts connect
-              and evolve. Stay tuned!
+              We're building visualization of how prompts connect and evolve.
+              Stay tuned!
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 w-full max-w-5xl px-4 mt-12">
