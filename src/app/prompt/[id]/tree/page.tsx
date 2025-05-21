@@ -2,8 +2,9 @@
 
 import React from "react";
 import Header from "../../../components/Header";
-import { useParams, usePathname } from "next/navigation";
+import { useParams } from "next/navigation";
 import PromptSubmenu from "../../../components/PromptSubmenu";
+import ComingSoonCard from "../../../components/ComingSoonCard";
 
 export default function PromptTreePage() {
   const params = useParams();
@@ -12,28 +13,14 @@ export default function PromptTreePage() {
   return (
     <div className="flex flex-col h-screen relative">
       <div className="fixed inset-0 z-0 bg-white/60 backdrop-blur-sm" />
-
       <div className="relative z-10">
         <Header />
         <PromptSubmenu promptId={promptId} activeTab="tree" />
         <main className="flex-1 flex flex-col items-center justify-center min-h-[calc(100vh-8rem)]">
-          <div className="px-8 py-6 bg-white rounded-2xl shadow-xl border border-gray-100 max-w-md w-full flex flex-col items-center">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-2 text-center">
-              Prompt Tree Coming Soon
-            </h2>
-            <p className="text-gray-500 text-center">
-              We're building visualization of how prompts connect and evolve.
-              Stay tuned!
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 w-full max-w-5xl px-4 mt-12">
-            {[...Array(6)].map((_, i) => (
-              <div
-                key={i}
-                className="h-32 bg-white rounded-xl shadow-lg border border-gray-100 opacity-60"
-              />
-            ))}
-          </div>
+          <ComingSoonCard
+            title="Prompt Tree Coming Soon"
+            description="We're building visualization of how prompts connect and evolve. Stay tuned!"
+          />
         </main>
       </div>
     </div>
