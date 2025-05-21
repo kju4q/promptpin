@@ -13,15 +13,12 @@ export default function PromptTreePage() {
 
   return (
     <div className="flex flex-col h-screen relative">
-      {/* Blurry cover for entire page */}
       <div className="fixed inset-0 z-0 bg-white/60 backdrop-blur-sm" />
 
-      {/* Content */}
       <div className="relative z-10">
         <Header />
         <PromptSubmenu promptId={promptId} activeTab="tree" />
         <main className="flex-1 flex flex-col items-center justify-center min-h-[calc(100vh-8rem)]">
-          {/* Modal */}
           <div className="px-8 py-6 bg-white rounded-2xl shadow-xl border border-gray-100 max-w-md w-full flex flex-col items-center">
             <h2 className="text-2xl font-semibold text-gray-900 mb-2 text-center">
               Prompt Tree Coming Soon
@@ -31,7 +28,6 @@ export default function PromptTreePage() {
               and evolve. Stay tuned!
             </p>
           </div>
-          {/* Card shadows */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 w-full max-w-5xl px-4 mt-12">
             {[...Array(6)].map((_, i) => (
               <div
