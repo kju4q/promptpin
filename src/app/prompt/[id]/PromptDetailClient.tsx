@@ -12,7 +12,7 @@ import {
   getAllPrompts,
   addToAllPrompts,
 } from "../../utils/promptStorage";
-import Header from "../../components/Header";
+import Header from "../../components/Navigation/Header";
 import Link from "next/link";
 import { generatePrompt } from "../../utils/openai";
 import { useToast } from "@/app/components/ui/toast-provider";

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Header from "./components/Header";
+import Header from "./components/Navigation/Header";
 import PromptGrid from "./components/PromptGrid";
 import { examplePrompts } from "@/app/data/example-prompts";
 import { Prompt } from "./types/prompt";

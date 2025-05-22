@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import Header from "../../components/Header";
+import Header from "../../components/Navigation/Header";
 import PromptTreeTooltip from "../../components/PromptTreeTooltip";
 
 export default function PromptTreePage() {

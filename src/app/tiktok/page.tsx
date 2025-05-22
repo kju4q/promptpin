@@ -6,7 +6,7 @@ import {
   fetchTrendingPrompts,
 } from "../utils/tiktok/tikApiService";
 import { useToast } from "../components/ui/toast-provider";
-import Header from "../components/Header";
+import Header from "../components/Navigation/Header";
 import PromptGrid from "../components/PromptGrid";
 import { Prompt } from "../types/prompt";
 import {

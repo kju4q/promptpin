@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import Header from "../../../components/Header";
+import Header from "../../../components/Navigation/Header";
 import { useParams } from "next/navigation";
 import PromptSubmenu from "../../../components/PromptSubmenu";
 import ComingSoonCard from "../../../components/ComingSoonCard";
