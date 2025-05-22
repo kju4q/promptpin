@@ -4,9 +4,9 @@ import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { Prompt } from "@/app/types/prompt";
 import { usePromptStatsStore } from "@/app/store/promptStatsStore";
-import PromptTreeTooltip from "./PromptTreeTooltip";
 import TryWithAIButtons from "./TryWithAIButtons";
 import SavePromptButton from "./SavePromptButton";
+import PromptTooltip from "./PromptTooltip";
 
 interface PromptCardProps {
   prompt: Prompt;
@@ -83,7 +83,7 @@ export default function PromptCard({
   return (
     <div
       ref={cardRef}
-      className={`group relative bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-visible break-inside-avoid mb-2`}
+      className="group relative bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-visible break-inside-avoid mb-2"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -112,22 +112,12 @@ export default function PromptCard({
         />
       </div>
 
-      {isHovered && (
-        <div
-          style={{ width: TOOLTIP_WIDTH }}
-          className={`absolute z-[9999] ${
-            tooltipPosition === "right"
-              ? `left-[calc(100%+${TOOLTIP_GAP}px)]`
-              : `right-[calc(100%+${TOOLTIP_GAP}px)]`
-          } top-0`}
-        >
-          <div className="transform transition-all duration-200 ease-out">
-            <div className="h-28 bg-white rounded-lg shadow-lg border border-gray-200">
-              <PromptTreeTooltip />
-            </div>
-          </div>
-        </div>
-      )}
+      <PromptTooltip
+        isVisible={isHovered}
+        position={tooltipPosition}
+        tooltipWidth={TOOLTIP_WIDTH}
+        tooltipGap={TOOLTIP_GAP}
+      />
     </div>
   );
 }
