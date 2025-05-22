@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Prompt } from "@/app/types/prompt";
 import { usePromptStatsStore } from "@/app/store/promptStatsStore";
 import PromptTreeTooltip from "./PromptTreeTooltip";
+import TryWithAIButtons from "./TryWithAIButtons";
 
 interface PromptCardProps {
   prompt: Prompt;
@@ -178,20 +179,10 @@ export default function PromptCard({
           )}
         </Link>
 
-        <div className="flex gap-1.5 justify-end">
-          <button
-            onClick={() => handleTryWithAI("gpt")}
-            className="px-2.5 py-1 bg-green-50 text-green-600 rounded-full text-xs font-medium hover:bg-green-100 transition-colors duration-200"
-          >
-            Try with GPT
-          </button>
-          <button
-            onClick={() => handleTryWithAI("claude")}
-            className="px-2.5 py-1 bg-purple-50 text-purple-600 rounded-full text-xs font-medium hover:bg-purple-100 transition-colors duration-200"
-          >
-            Try with Claude
-          </button>
-        </div>
+        <TryWithAIButtons
+          onTryWithGPT={() => handleTryWithAI("gpt")}
+          onTryWithClaude={() => handleTryWithAI("claude")}
+        />
       </div>
 
       {/* Tooltip */}
